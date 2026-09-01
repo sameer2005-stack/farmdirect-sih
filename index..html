@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmDirect — SIH Prototype</title>
+  <meta name="description" content="Direct farm-to-consumer marketplace prototype for Smart India Hackathon." />
+  <style>
+    :root{
+      --green:#08752b;
+      --green-dark:#045b20;
+      --green-soft:#eaf6e9;
+      --cream:#fbfaf5;
+      --text:#111512;
+      --muted:#667066;
+      --line:#e3e8df;
+      --orange:#e88a22;
+      --white:#fff;
+      --shadow:0 12px 35px rgba(17,50,24,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:var(--cream);
+    }
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .container{width:min(1180px,92%);margin:auto}
+    .nav{
+      position:sticky;top:0;z-index:50;
+      background:rgba(255,255,255,.94);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav-inner{height:72px;display:flex;align-items:center;gap:30px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:800;font-size:20px}
+    .logo-mark{width:38px;height:38px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:white;font-size:21px}
+    .logo small{display:block;font-size:10px;color:var(--muted);font-weight:600}
+    .links{display:flex;gap:27px;margin-left:auto}
+    .links a{color:#252b25;text-decoration:none;font-size:14px}
+    .links a:hover{color:var(--green)}
+    .nav-actions{display:flex;gap:10px}
+    .btn{
+      border:0;border-radius:10px;padding:12px 19px;font-weight:750;
+      transition:.2s transform,.2s box-shadow,.2s background;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--green);color:white;box-shadow:0 8px 20px rgba(8,117,43,.18)}
+    .btn-primary:hover{background:var(--green-dark)}
+    .btn-outline{background:white;border:1px solid #b9c6b9;color:var(--text)}
+    .btn-light{background:var(--green-soft);color:var(--green)}
+    .menu{display:none;border:0;background:transparent;font-size:25px}
+
+    .hero{padding:42px 0 18px}
+    .hero-grid{
+      min-height:470px;border-radius:24px;overflow:hidden;
+      display:grid;grid-template-columns:1fr 1.05fr;
+      background:white;box-shadow:var(--shadow);border:1px solid var(--line)
+    }
+    .hero-copy{padding:62px 48px;display:flex;flex-direction:column;justify-content:center}
+    .eyebrow{display:inline-flex;align-self:flex-start;gap:7px;background:var(--green-soft);color:var(--green);border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.03em}
+    h1{font-size:clamp(42px,5vw,65px);line-height:1.02;margin:22px 0 16px;letter-spacing:-.045em}
+    h1 span{color:var(--green)}
+    .hero-copy p{font-size:17px;line-height:1.7;color:var(--muted);max-width:550px}
+    .cta{display:flex;gap:12px;margin:25px 0 28px;flex-wrap:wrap}
+    .stats{display:flex;gap:28px}
+    .stat{padding-right:24px;border-right:1px solid var(--line)}
+    .stat:last-child{border:0}
+    .stat strong{display:block;font-size:21px;color:var(--green)}
+    .stat span{font-size:12px;color:var(--muted)}
+    .hero-image{
+      position:relative;min-height:470px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.12),rgba(255,255,255,0)),
+        url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=85") center/cover;
+    }
+    .why{
+      position:absolute;right:28px;top:28px;background:rgba(255,255,255,.95);
+      padding:22px;border-radius:18px;width:225px;box-shadow:var(--shadow)
+    }
+    .why h3{margin:0 0 14px}
+    .why div{font-size:12px;margin:10px 0;color:#394039}
+    .why b{color:var(--green);margin-right:6px}
+
+    .section{padding:42px 0}
+    .section-title{text-align:center;margin-bottom:24px}
+    .section-title h2{font-size:32px;margin:0 0 7px;letter-spacing:-.03em}
+    .section-title p{margin:0;color:var(--muted)}
+    .transparency{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card{background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .price-card{padding:25px}
+    .price-card h3{margin:0 0 20px}
+    .price-list{display:grid;gap:12px}
+    .row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dashed #dce3da;font-size:14px}
+    .row:last-child{border:0}
+    .price-highlight{background:#fff1e7;border-radius:12px;padding:13px;font-weight:800;color:#c84e16}
+    .direct{background:#f0f8ed}
+    .direct strong{color:var(--green)}
+    .save{text-align:center;color:var(--green);font-weight:750;margin-top:14px}
+
+    .products{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+    .product{overflow:hidden}
+    .product-img{height:145px;width:100%;object-fit:cover}
+    .product-body{padding:15px}
+    .tag{display:inline-block;font-size:10px;padding:5px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-weight:800}
+    .product h3{font-size:15px;margin:10px 0 5px}
+    .product p{font-size:11px;color:var(--muted);margin:0 0 10px}
+    .price{font-size:18px;font-weight:850;color:var(--green)}
+    .market{font-size:10px;color:var(--muted);margin-left:5px}
+    .add{width:100%;margin-top:12px;padding:10px;border-radius:9px}
+
+    .how{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .how .card{padding:24px;text-align:center}
+    .icon{font-size:31px}
+    .how h3{font-size:16px;margin:12px 0 7px}
+    .how p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .dashboard{padding:24px}
+    .dash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .dash-head h3{margin:0}
+    .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .mini{background:#f7faf5;border:1px solid var(--line);padding:14px;border-radius:12px}
+    .mini span{display:block;color:var(--muted);font-size:11px}
+    .mini strong{display:block;color:var(--green);font-size:20px;margin-top:5px}
+    .chart{height:150px;display:flex;align-items:flex-end;gap:10px;margin-top:20px;padding:10px 5px;border-bottom:1px solid var(--line)}
+    .bar{flex:1;background:#75ad76;border-radius:7px 7px 0 0;min-height:18px}
+    .insight{margin-top:15px;background:#fff7e8;border:1px solid #f2dfb6;padding:13px;border-radius:11px;font-size:12px}
+    .inventory{display:grid;gap:9px}
+    .inventory-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:11px;padding:10px}
+    .inventory-row img{width:48px;height:42px;object-fit:cover;border-radius:8px}
+    .inventory-row div{flex:1;font-size:12px}
+    .inventory-row strong{display:block}
+    .inventory-row span{color:var(--muted)}
+
+    .footer{
+      margin-top:35px;background:#075d23;color:white;padding:35px 0
+    }
+    .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:25px}
+    .footer h3,.footer h4{margin-top:0}
+    .footer p,.footer a{color:#d8ebdc;font-size:12px;line-height:1.7}
+    .footer a{display:block;text-decoration:none;margin:7px 0}
+    .mobile-nav{display:none}
+
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center;z-index:100;padding:20px
+    }
+    .modal.show{display:grid}
+    .modal-box{background:white;width:min(500px,100%);border-radius:20px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.2)}
+    .modal-box h2{margin-top:0}
+    .close{float:right;border:0;background:#f1f4ef;border-radius:50%;width:32px;height:32px}
+    .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+    .role{border:1px solid var(--line);background:#fff;border-radius:15px;padding:22px;text-align:left}
+    .role:hover{border-color:var(--green);background:var(--green-soft)}
+    .toast{position:fixed;right:20px;bottom:20px;background:#13351d;color:white;padding:13px 18px;border-radius:11px;display:none;z-index:120;font-size:13px}
+    .toast.show{display:block}
+
+    @media(max-width:900px){
+      .links{display:none}.menu{display:block;margin-left:auto}
+      .nav-actions{display:none}
+      .hero-grid{grid-template-columns:1fr}.hero-image{min-height:360px}
+      .hero-copy{padding:45px 30px}
+      .transparency,.dash-grid{grid-template-columns:1fr}
+      .products{grid-template-columns:repeat(2,1fr)}
+      .how{grid-template-columns:repeat(2,1fr)}
+      .footer-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:560px){
+      .hero{padding-top:18px}
+      .hero-copy{padding:32px 22px}
+      h1{font-size:43px}
+      .stats{gap:12px}.stat{padding-right:10px}
+      .stat strong{font-size:16px}
+      .products,.how{grid-template-columns:1fr}
+      .hero-image{min-height:300px}
+      .why{right:15px;top:15px;width:190px}
+      .footer-grid{grid-template-columns:1fr}
+      .role-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="logo" href="#home">
+      <div class="logo-mark">🌱</div>
+      <div>FarmDirect<small>From Farm to You</small></div>
+    </a>
+    <nav class="links">
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#how">How It Works</a>
+      <a href="#farmers">Farmers</a>
+      <a href="#about">About Us</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn btn-outline" onclick="showToast('Cart is ready for your prototype!')">🛒 <span id="cartCount">0</span></button>
+      <button class="btn btn-outline" onclick="openModal('login')">Login</button>
+      <button class="btn btn-primary" onclick="openModal('role')">Get Started</button>
+    </div>
+    <button class="menu" onclick="toggleMobile()">☰</button>
+  </div>
+  <div id="mobileNav" class="mobile-nav container" style="padding-bottom:15px">
+    <a href="#home">Home</a> · <a href="#products">Products</a> · <a href="#how">How It Works</a> · <a href="#farmers">Farmers</a>
+  </div>
+</header>
+
+<main id="home">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">🌿 DIRECT. TRANSPARENT. FAIR.</span>
+        <h1>From the farm,<br><span>directly to you.</span></h1>
+        <p>Connect directly with verified farmers and buy fresh produce at fair prices—while farmers keep more of what they earn.</p>
+        <div class="cta">
+          <button class="btn btn-primary" onclick="scrollToId('products')">🛒 Start Shopping</button>
+          <button class="btn btn-outline" onclick="openModal('farmer')">🌱 Sell Your Produce</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>10,000+</strong><span>Farmers</span></div>
+          <div class="stat"><strong>25,000+</strong><span>Buyers</span></div>
+          <div class="stat"><strong>100%</strong><span>Price Transparency</span></div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="why">
+          <h3>Why FarmDirect?</h3>
+          <div><b>✓</b> Fair prices for farmers</div>
+          <div><b>✓</b> Fresh & quality produce</div>
+          <div><b>✓</b> No unnecessary middlemen</div>
+          <div><b>✓</b> Secure payments</div>
+          <div><b>✓</b> Fast delivery</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="container">
+      <div class="section-title">
+        <h2>Where does your money go?</h2>
+        <p>See the difference a direct connection can make.</p>
+      </div>
+      <div class="transparency">
+        <div class="card price-card">
+          <h3>Traditional Supply Chain</h3>
+          <div class="price-list">
+            <div class="row"><span>Farmer</span><strong>₹20/kg</strong></div>
+            <div class="row"><span>Aggregator</span><strong>₹24/kg</strong></div>
+            <div class="row"><span>Wholesaler</span><strong>₹28/kg</strong></div>
+            <div class="row"><span>Retailer</span><strong>₹35/kg</strong></div>
+            <div class="price-highlight row"><span>Consumer Pays</span><strong>₹40/kg</strong></div>
+          </div>
+        </div>
+        <div class="card price-card direct">
+          <h3>With FarmDirect</h3>
+          <div class="price-list">
+            <div class="row"><span>Farmer Receives</span><strong>₹30/kg</strong></div>
+            <div class="row"><span>Platform + Logistics</span><strong>₹4/kg</strong></div>
+            <div class="price-highlight row direct"><span>You Pay</span><strong>₹34/kg</strong></div>
+          </div>
+          <div class="save">✓ Save money. Support farmers.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="products">
+    <div class="container">
+      <div class="section-title">
+        <h2>Fresh from nearby farms</h2>
+        <p>Verified produce from farmers you can trust.</p>
+      </div>
+      <div class="products" id="productGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-title">
+        <h2>How it works</h2>
+        <p>Simple, transparent and built for both sides of the marketplace.</p>
+      </div>
+      <div class="how">
+        <div class="card"><div class="icon">🌱</div><h3>Farmers List Produce</h3><p>Add crop, quantity, quality and your fair selling price.</p></div>
+        <div class="card"><div class="icon">🤝</div><h3>Buyers Connect</h3><p>Households, retailers, restaurants and institutions discover farmers.</p></div>
+        <div class="card"><div class="icon">💳</div><h3>Secure Payment</h3><p>Digital transactions with clear price breakdowns.</p></div>
+        <div class="card"><div class="icon">🚚</div><h3>Delivery</h3><p>Coordinate pickup and delivery with real-time order tracking.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="farmers">
+    <div class="container">
+      <div class="section-title">
+        <h2>Prototype dashboards</h2>
+        <p>One platform, two powerful experiences.</p>
+      </div>
+      <div class="dash-grid">
+        <div class="card dashboard">
+          <div class="dash-head"><h3>👩‍🌾 Farmer Dashboard</h3><span class="tag">Verified Farmer</span></div>
+          <div class="mini-stats">
+            <div class="mini"><span>Available Produce</span><strong>1,250 kg</strong></div>
+            <div class="mini"><span>Orders</span><strong>24</strong></div>
+            <div class="mini"><span>Earnings</span><strong>₹38,450</strong></div>
+          </div>
+          <h4>Market Insights — Tomatoes</h4>
+          <div class="row"><span>Current market price</span><strong>₹34/kg</strong></div>
+          <div class="row"><span>Recommended selling price</span><strong>₹36/kg</strong></div>
+          <div class="row"><span>Demand this week</span><strong style="color:var(--green)">↑ 18%</strong></div>
+          <div class="chart">
+            <div class="bar" style="height:45%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:67%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:84%"></div><div class="bar" style="height:100%"></div>
+          </div>
+          <div class="insight">💡 Demand is expected to increase this weekend. Consider listing an additional 200 kg.</div>
+        </div>
+
+        <div class="card dashboard">
+          <div class="dash-head"><h3>🛒 Buyer Dashboard</h3><button class="btn btn-light" onclick="scrollToId('products')">Browse</button></div>
+          <div class="card" style="padding:12px;margin-bottom:15px">🔍 Search tomatoes, potatoes, onions...</div>
+          <h4>Recommended for you</h4>
+          <div class="inventory">
+            <div class="inventory-row"><img src="https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=150&q=80"><div><strong>Organic Tomatoes</strong><span>Rajesh Kumar · Haryana</span></div><b>₹34/kg</b></div>
+            <div class="inventory-row"><img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=150&q=80"><div><strong>Desi Potatoes</strong><span>Sunil Yadav · Haryana</span></div><b>₹28/kg</b></div>
+            <div class="inventory-row"><img src="https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=150&q=80"><div><strong>Red Onions</strong><span>Mahesh Singh · Haryana</span></div><b>₹31/kg</b></div>
+          </div>
+          <div class="insight" style="background:var(--green-soft);border-color:#cfe4cc">🌿 Every order shows how much goes directly to the farmer.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><h3>🌱 FarmDirect</h3><p>Direct farm-to-consumer marketplace designed to improve farmer income, price transparency and access to fresh produce.</p></div>
+    <div><h4>Platform</h4><a href="#products">Products</a><a href="#how">How It Works</a><a href="#farmers">Farmer Dashboard</a></div>
+    <div><h4>For Farmers</h4><a href="#" onclick="openModal('farmer');return false">Register</a><a href="#">Market Prices</a><a href="#">Logistics</a></div>
+    <div><h4>For Buyers</h4><a href="#products">Shop Produce</a><a href="#">Track Orders</a><a href="#">Support</a></div>
+  </div>
+</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const products = [
+    {name:"Organic Tomatoes", farmer:"Rajesh Kumar", place:"Haryana · 18 km away", price:34, market:42, img:"https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=500&q=85"},
+    {name:"Desi Potatoes", farmer:"Sunil Yadav", place:"Haryana · 22 km away", price:28, market:36, img:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=500&q=85"},
+    {name:"Red Onions", farmer:"Mahesh Singh", place:"Haryana · 20 km away", price:31, market:40, img:"https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=500&q=85"},
+    {name:"Sarson (Mustard)", farmer:"Pooja Devi", place:"Haryana · 25 km away", price:18, market:24, img:"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=500&q=85"}
+  ];
+
+  let cart=0;
+  const grid=document.getElementById("productGrid");
+  products.forEach((p,i)=>{
+    grid.insertAdjacentHTML("beforeend",`
+      <article class="card product">
+        <img class="product-img" src="${p.img}" alt="${p.name}">
+        <div class="product-body">
+          <span class="tag">✓ Fresh & Verified</span>
+          <h3>${p.name}</h3>
+          <p>${p.farmer} ✓<br>${p.place}</p>
+          <span class="price">₹${p.price}/kg</span>
+          <span class="market">Market avg. ₹${p.market}/kg</span>
+          <button class="btn btn-primary add" onclick="addToCart('${p.name}')">🛒 Add to Cart</button>
+        </div>
+      </article>
+    `);
+  });
+
+  function addToCart(name){
+    cart++;
+    document.getElementById("cartCount").textContent=cart;
+    showToast(name+" added to cart");
+  }
+  function showToast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2200);
+  }
+  function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+  function toggleMobile(){
+    const el=document.getElementById("mobileNav");
+    el.style.display=el.style.display==="block"?"none":"block";
+  }
+  function openModal(type){
+    const content=document.getElementById("modalContent");
+    if(type==="role"){
+      content.innerHTML=`<h2>Welcome to FarmDirect</h2><p style="color:var(--muted)">Choose how you want to use the platform.</p>
+      <div class="role-grid">
+        <button class="role" onclick="openModal('buyer')"><div style="font-size:30px">🛒</div><h3>I'm a Buyer</h3><p>Buy fresh produce directly from verified farmers.</p></button>
+        <button class="role" onclick="openModal('farmer')"><div style="font-size:30px">🌱</div><h3>I'm a Farmer</h3><p>List produce, discover demand and sell directly.</p></button>
+      </div>`;
+    } else if(type==="farmer"){
+      content.innerHTML=`<h2>🌱 Join as a Farmer</h2><p style="color:var(--muted)">Prototype registration flow.</p>
+      <input placeholder="Full Name" style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+      <input placeholder="Village / Location" style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+      <input placeholder="Mobile Number" style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+      <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="closeModal();showToast('Farmer registration submitted!')">Register as Farmer</button>`;
+    } else if(type==="buyer"){
+      content.innerHTML=`<h2>🛒 Buyer Login</h2><p style="color:var(--muted)">Prototype login flow.</p>
+      <input placeholder="Mobile / Email" style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+      <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="closeModal();showToast('Welcome to FarmDirect!')">Continue</button>`;
+    } else {
+      content.innerHTML=`<h2>Login</h2><p style="color:var(--muted)">Choose your account type.</p>
+      <div class="role-grid">
+        <button class="role" onclick="openModal('buyer')">🛒 <b>Buyer</b><br><small>Continue as buyer</small></button>
+        <button class="role" onclick="openModal('farmer')">🌱 <b>Farmer</b><br><small>Continue as farmer</small></button>
+      </div>`;
+    }
+  }
+  function closeModal(){document.getElementById("modal").classList.remove("show")}
+  document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+</script>
+</body>
+</html>
