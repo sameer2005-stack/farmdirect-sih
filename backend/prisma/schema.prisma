@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  FARMER
+  FPO
+  BUYER
+  DELIVERY_PARTNER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  farmerProfile FarmerProfile?
+}
+
+model FarmerProfile {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  farmName            String
+  address             String
+  verificationStatus  String   @default("PENDING")
+
+  user User @relation(fields: [userId], references: [id])
+}
