@@ -8,4 +8,5 @@ const product_controller_js_1 = require("../controllers/product.controller.js");
 const auth_middleware_js_1 = __importDefault(require("../middlewares/auth.middleware.js"));
 const router = (0, express_1.Router)();
 router.post("/", auth_middleware_js_1.default, product_controller_js_1.createProduct);
+router.get("/", product_controller_js_1.getProducts);
 exports.default = router;

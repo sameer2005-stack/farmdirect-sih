@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProduct = createProduct;
+exports.getProducts = getProducts;
 const prisma_js_1 = __importDefault(require("../config/prisma.js"));
 async function createProduct(req, res) {
     const { name, category, quantity, unit, price, harvestDate, } = req.body;
@@ -29,5 +30,29 @@ async function createProduct(req, res) {
         success: true,
         message: "Product created successfully",
         product,
+    });
+}
+async function getProducts(req, res) {
+    const products = await prisma_js_1.default.product.findMany({
+        where: {
+            status: "AVAILABLE",
+        },
+        include: {
+            farmer: {
+                select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    return res.status(200).json({
+        success: true,
+        count: products.length,
+        products,
     });
 }
