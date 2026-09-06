@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.FarmerProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.ProductScalarFieldEnum = exports.FarmerProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -76,7 +76,8 @@ exports.JsonNull = runtime.JsonNull;
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     User: 'User',
-    FarmerProfile: 'FarmerProfile'
+    FarmerProfile: 'FarmerProfile',
+    Product: 'Product'
 };
 /*
  * Enums
@@ -103,6 +104,19 @@ exports.FarmerProfileScalarFieldEnum = {
     farmName: 'farmName',
     address: 'address',
     verificationStatus: 'verificationStatus'
+};
+exports.ProductScalarFieldEnum = {
+    id: 'id',
+    farmerId: 'farmerId',
+    name: 'name',
+    category: 'category',
+    quantity: 'quantity',
+    unit: 'unit',
+    price: 'price',
+    harvestDate: 'harvestDate',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 };
 exports.SortOrder = {
     asc: 'asc',

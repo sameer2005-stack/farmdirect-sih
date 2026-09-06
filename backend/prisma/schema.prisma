@@ -22,6 +22,7 @@ model User {
   password  String
   role      Role
   phone     String?
+  products  Product[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -36,4 +37,20 @@ model FarmerProfile {
   verificationStatus  String   @default("PENDING")
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  farmerId    String
+  name        String
+  category    String
+  quantity    Float
+  unit        String
+  price       Float
+  harvestDate DateTime?
+  status      String   @default("AVAILABLE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  farmer User @relation(fields: [farmerId], references: [id])
 }
