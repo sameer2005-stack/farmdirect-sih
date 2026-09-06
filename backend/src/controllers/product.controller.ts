@@ -1,0 +1,40 @@
+import { Request, Response } from "express";
+import prisma from "../config/prisma.js";
+
+export async function createProduct(req: Request, res: Response) {
+  const {
+    name,
+    category,
+    quantity,
+    unit,
+    price,
+    harvestDate,
+  } = req.body;
+
+  const farmerId = req.user?.userId;
+
+  if (!farmerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  const product = await prisma.product.create({
+    data: {
+      farmerId,
+      name,
+      category,
+      quantity,
+      unit,
+      price,
+      harvestDate: harvestDate ? new Date(harvestDate) : null,
+    },
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: "Product created successfully",
+    product,
+  });
+}
