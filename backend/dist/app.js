@@ -5,8 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const error_middleware_js_1 = __importDefault(require("./middlewares/error.middleware.js"));
+const auth_routes_js_1 = __importDefault(require("./routes/auth.routes.js"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use("/api/auth", auth_routes_js_1.default);
 app.get("/", (req, res) => {
     res.send("FarmDirect backend is running!");
 });
