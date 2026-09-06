@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MandiSaarthi</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="chat-container">
+
+        <header class="chat-header">
+            <div>
+                <h1>🌾 MandiSaarthi</h1>
+                <p>Your AI-Powered Market Companion</p>
+            </div>
+
+            <select id="language">
+                <option value="auto">Auto</option>
+                <option value="hi">हिन्दी</option>
+                <option value="en">English</option>
+            </select>
+        </header>
+
+
+        <main id="chat-box" class="chat-box">
+
+            <div class="message bot">
+                <div class="message-content">
+                    नमस्ते! मैं MandiSaarthi हूँ। 🌾<br>
+                    मैं आपकी कृषि बिक्री और बाजार से जुड़ी जानकारी में मदद कर सकता हूँ।
+                </div>
+            </div>
+
+        </main>
+
+
+        <div id="suggestions" class="suggestions"></div>
+
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="message-input"
+                placeholder="अपना सवाल लिखें..."
+                autocomplete="off"
+            >
+
+            <button id="send-button">
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
