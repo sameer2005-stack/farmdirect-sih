@@ -1,0 +1,121 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createOrder = createOrder;
+const order_validator_js_1 = require("../validators/order.validator.js");
+const prisma_js_1 = __importDefault(require("../config/prisma.js"));
+async function createOrder(req, res) {
+    const buyerId = req.user?.userId;
+    if (!buyerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    const result = order_validator_js_1.createOrderSchema.safeParse(req.body);
+    if (!result.success) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid input",
+            errors: result.error.issues,
+        });
+    }
+    const { items, deliveryAddress } = result.data;
+    const productIds = items.map((item) => item.productId);
+    const products = await prisma_js_1.default.product.findMany({
+        where: {
+            id: {
+                in: productIds,
+            },
+        },
+    });
+    if (productIds.length !== products.length) {
+        return res.status(404).json({
+            msg: "product not found",
+        });
+    }
+    for (const item of items) {
+        const product = products.find((product) => product.id === item.productId);
+        if (!product) {
+            return res.status(404).json({
+                msg: "product not found",
+            });
+        }
+    }
+    const farmerId = products[0].farmerId;
+    const sameFarmer = products.every((product) => product.farmerId === farmerId);
+    if (!sameFarmer) {
+        return res.status(400).json({
+            success: false,
+            message: "All products must belong to the same farmer",
+        });
+    }
+    let totalAmount = 0;
+    for (const item of items) {
+        const product = products.find((product) => product.id === item.productId);
+        if (!product) {
+            return res.status(404).json({
+                msg: "product not found",
+            });
+        }
+        const costOfItem = product.price * item.quantity;
+        totalAmount += costOfItem;
+    }
+    const orderItems = [];
+    for (const item of items) {
+        const product = products.find((product) => product.id === item.productId);
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+            });
+        }
+        const orderItem = {
+            productId: item.productId,
+            quantity: item.quantity,
+            price: product.price,
+        };
+        orderItems.push(orderItem);
+    }
+    const order = await prisma_js_1.default.$transaction(async (tx) => {
+        // database operations here
+        const orderPlacing = await tx.order.create({
+            data: {
+                buyerId,
+                farmerId,
+                totalAmount,
+                deliveryAddress,
+                items: {
+                    create: orderItems,
+                },
+            },
+        });
+        for (const item of items) {
+            const product = products.find((product) => product.id === item.productId);
+            const updated = await tx.product.updateMany({
+                where: {
+                    id: product.id,
+                    quantity: {
+                        gte: item.quantity,
+                    },
+                },
+                data: {
+                    quantity: {
+                        decrement: item.quantity,
+                    },
+                },
+            });
+            if (updated.count === 0) {
+                throw new Error("Insufficient stock");
+            }
+        }
+        return orderPlacing;
+    });
+    return res.status(201).json({
+        success: true,
+        message: "Order created successfully",
+        order,
+    });
+}
