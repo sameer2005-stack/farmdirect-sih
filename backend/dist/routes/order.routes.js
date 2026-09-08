@@ -8,4 +8,5 @@ const auth_middleware_js_1 = __importDefault(require("../middlewares/auth.middle
 const order_controller_js_1 = require("../controllers/order.controller.js");
 const router = (0, express_1.Router)();
 router.post("/", auth_middleware_js_1.default, order_controller_js_1.createOrder);
+router.get("/", auth_middleware_js_1.default, order_controller_js_1.getMyOrders);
 exports.default = router;

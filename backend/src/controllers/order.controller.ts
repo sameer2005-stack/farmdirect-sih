@@ -160,3 +160,29 @@ export async function createOrder(req: Request, res: Response) {
     throw error;
   }
 }
+
+export async function getMyOrders(req: Request, res: Response) {
+  const buyerId = req.user?.userId;
+
+  if (!buyerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  const orders = await prisma.order.findMany({
+    where: {
+      buyerId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    count: orders.length,
+    orders,
+  });
+}

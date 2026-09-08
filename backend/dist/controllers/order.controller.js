@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createOrder = createOrder;
+exports.getMyOrders = getMyOrders;
 const order_validator_js_1 = require("../validators/order.validator.js");
 const prisma_js_1 = __importDefault(require("../config/prisma.js"));
 async function createOrder(req, res) {
@@ -79,43 +80,76 @@ async function createOrder(req, res) {
         };
         orderItems.push(orderItem);
     }
-    const order = await prisma_js_1.default.$transaction(async (tx) => {
-        // database operations here
-        const orderPlacing = await tx.order.create({
-            data: {
-                buyerId,
-                farmerId,
-                totalAmount,
-                deliveryAddress,
-                items: {
-                    create: orderItems,
-                },
-            },
-        });
-        for (const item of items) {
-            const product = products.find((product) => product.id === item.productId);
-            const updated = await tx.product.updateMany({
-                where: {
-                    id: product.id,
-                    quantity: {
-                        gte: item.quantity,
-                    },
-                },
+    try {
+        const order = await prisma_js_1.default.$transaction(async (tx) => {
+            // database operations here
+            const orderPlacing = await tx.order.create({
                 data: {
-                    quantity: {
-                        decrement: item.quantity,
+                    buyerId,
+                    farmerId,
+                    totalAmount,
+                    deliveryAddress,
+                    items: {
+                        create: orderItems,
                     },
                 },
             });
-            if (updated.count === 0) {
-                throw new Error("Insufficient stock");
+            for (const item of items) {
+                const product = products.find((product) => product.id === item.productId);
+                const updated = await tx.product.updateMany({
+                    where: {
+                        id: product.id,
+                        quantity: {
+                            gte: item.quantity,
+                        },
+                    },
+                    data: {
+                        quantity: {
+                            decrement: item.quantity,
+                        },
+                    },
+                });
+                if (updated.count === 0) {
+                    throw new Error("Insufficient stock");
+                }
             }
+            return orderPlacing;
+        });
+        return res.status(201).json({
+            success: true,
+            message: "Order created successfully",
+            order,
+        });
+    }
+    catch (error) {
+        if (error instanceof Error && error.message === "Insufficient stock") {
+            return res.status(400).json({
+                success: false,
+                message: "Insufficient stock",
+            });
         }
-        return orderPlacing;
+        throw error;
+    }
+}
+async function getMyOrders(req, res) {
+    const buyerId = req.user?.userId;
+    if (!buyerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    const orders = await prisma_js_1.default.order.findMany({
+        where: {
+            buyerId,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
     });
-    return res.status(201).json({
+    return res.status(200).json({
         success: true,
-        message: "Order created successfully",
-        order,
+        count: orders.length,
+        orders,
     });
 }
