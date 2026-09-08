@@ -230,3 +230,29 @@ export async function getOrderById(req: Request, res: Response) {
     order,
   });
 }
+
+export async function getFarmerOrders(req: Request, res: Response) {
+  const farmerId = req.user?.userId;
+
+  if (!farmerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  const orders = await prisma.order.findMany({
+    where: {
+      farmerId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    count: orders.length,
+    orders,
+  });
+}
