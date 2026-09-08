@@ -11,4 +11,5 @@ router.post("/", auth_middleware_js_1.default, order_controller_js_1.createOrder
 router.get("/", auth_middleware_js_1.default, order_controller_js_1.getMyOrders);
 router.get("/farmer", auth_middleware_js_1.default, order_controller_js_1.getFarmerOrders);
 router.get("/:id", auth_middleware_js_1.default, order_controller_js_1.getOrderById);
+router.patch("/:id/status", auth_middleware_js_1.default, order_controller_js_1.updateOrderStatus);
 exports.default = router;

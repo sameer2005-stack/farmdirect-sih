@@ -7,6 +7,7 @@ exports.createOrder = createOrder;
 exports.getMyOrders = getMyOrders;
 exports.getOrderById = getOrderById;
 exports.getFarmerOrders = getFarmerOrders;
+exports.updateOrderStatus = updateOrderStatus;
 const order_validator_js_1 = require("../validators/order.validator.js");
 const prisma_js_1 = __importDefault(require("../config/prisma.js"));
 async function createOrder(req, res) {
@@ -214,5 +215,53 @@ async function getFarmerOrders(req, res) {
         success: true,
         count: orders.length,
         orders,
+    });
+}
+async function updateOrderStatus(req, res) {
+    const farmerId = req.user?.userId;
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!farmerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    if (typeof id !== "string") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid order ID",
+        });
+    }
+    if (status !== "ACCEPTED" && status !== "REJECTED") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid status. Only ACCEPTED or REJECTED are allowed.",
+        });
+    }
+    const order = await prisma_js_1.default.order.findFirst({
+        where: {
+            id,
+            farmerId,
+        },
+    });
+    if (!order) {
+        return res.status(404).json({
+            success: false,
+            message: "Order not found",
+        });
+    }
+    const updatedOrder = await prisma_js_1.default.order.update({
+        where: {
+            id: order.id,
+        },
+        data: {
+            status,
+        },
+    });
+    return res.status(200).json({
+        success: true,
+        message: "Order status updated successfully",
+        order: updatedOrder,
     });
 }

@@ -256,3 +256,59 @@ export async function getFarmerOrders(req: Request, res: Response) {
     orders,
   });
 }
+
+export async function updateOrderStatus(req: Request, res: Response) {
+  const farmerId = req.user?.userId;
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!farmerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order ID",
+    });
+  }
+
+  if (status !== "ACCEPTED" && status !== "REJECTED") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid status. Only ACCEPTED or REJECTED are allowed.",
+    });
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      farmerId,
+    },
+  });
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order not found",
+    });
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: order.id,
+    },
+    data: {
+      status,
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Order status updated successfully",
+    order: updatedOrder,
+  });
+}
