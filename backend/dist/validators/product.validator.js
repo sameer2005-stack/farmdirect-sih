@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createProductSchema = void 0;
+exports.updateProductSchema = exports.createProductSchema = void 0;
 const zod_1 = require("zod");
 exports.createProductSchema = zod_1.z.object({
     name: zod_1.z.string().min(2).max(100),
@@ -10,3 +10,4 @@ exports.createProductSchema = zod_1.z.object({
     price: zod_1.z.number().positive(),
     harvestDate: zod_1.z.string().optional(),
 });
+exports.updateProductSchema = exports.createProductSchema.partial();

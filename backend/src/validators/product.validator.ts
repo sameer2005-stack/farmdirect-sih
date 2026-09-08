@@ -8,3 +8,5 @@ export const createProductSchema = z.object({
   price: z.number().positive(),
   harvestDate: z.string().optional(),
 });
+
+export const updateProductSchema = createProductSchema.partial();
