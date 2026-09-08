@@ -22,10 +22,14 @@ model User {
   password  String
   role      Role
   phone     String?
+  products  Product[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   farmerProfile FarmerProfile?
+
+  buyerOrders  Order[] @relation("BuyerOrders")
+  farmerOrders Order[] @relation("FarmerOrders")
 }
 
 model FarmerProfile {
@@ -36,4 +40,49 @@ model FarmerProfile {
   verificationStatus  String   @default("PENDING")
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  farmerId    String
+  name        String
+  category    String
+  quantity    Float
+  unit        String
+  price       Float
+  harvestDate DateTime?
+  status      String   @default("AVAILABLE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  farmer User @relation(fields: [farmerId], references: [id])
+  orderItems OrderItem[]
+}
+
+
+model Order {
+  id              String   @id @default(uuid())
+  buyerId         String
+  farmerId        String
+  status          String   @default("PENDING")
+  totalAmount     Float
+  deliveryAddress String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  buyer  User @relation("BuyerOrders", fields: [buyerId], references: [id])
+  farmer User @relation("FarmerOrders", fields: [farmerId], references: [id])
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Float
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
