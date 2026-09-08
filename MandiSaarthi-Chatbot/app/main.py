@@ -1,3 +1,4 @@
+from app.ml.service import get_market_recommendation
 from app.suggestions import generate_suggestions
 from app.intent import detect_intent
 from app.conversation import get_history, add_message
@@ -11,7 +12,7 @@ from app.llm import generate_response
 app = FastAPI(
     title="MandiSaarthi API",
     description="AI-powered multilingual market assistant for KisanSetu",
-    version="0.2.0",
+    version="0.3.0",
 )
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +32,16 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     suggestions: list[str]
+
+class RecommendationRequest(BaseModel):
+    market_candidates: list[dict]
+    quantity_kg: float = Field(..., gt=0)
+    transport_rate_per_km: float = Field(..., ge=0)
+    other_cost_per_kg: float = Field(default=0.0, ge=0)
+
+
+class RecommendationResponse(BaseModel):
+    recommendations: list[dict]
 
 
 @app.get("/health")
@@ -77,5 +88,35 @@ def chat(request: ChatRequest):
         raise HTTPException(
             status_code=500,
             detail="MandiSaarthi is temporarily unavailable.",
+        ) from exc
+
+
+@app.post(
+    "/recommend",
+    response_model=RecommendationResponse,
+)
+def recommend(request: RecommendationRequest):
+
+    try:
+        recommendations = get_market_recommendation(
+            market_candidates=request.market_candidates,
+            quantity_kg=request.quantity_kg,
+            transport_rate_per_km=request.transport_rate_per_km,
+            other_cost_per_kg=request.other_cost_per_kg,
+        )
+
+        return RecommendationResponse(
+            recommendations=recommendations
+        )
+
+    except Exception as exc:
+        print(
+            f"RECOMMENDATION ERROR: "
+            f"{type(exc).__name__}: {exc}"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Market recommendation is temporarily unavailable.",
         ) from exc
     
