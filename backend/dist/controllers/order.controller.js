@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createOrder = createOrder;
 exports.getMyOrders = getMyOrders;
+exports.getOrderById = getOrderById;
 const order_validator_js_1 = require("../validators/order.validator.js");
 const prisma_js_1 = __importDefault(require("../config/prisma.js"));
 async function createOrder(req, res) {
@@ -151,5 +152,44 @@ async function getMyOrders(req, res) {
         success: true,
         count: orders.length,
         orders,
+    });
+}
+async function getOrderById(req, res) {
+    const buyerId = req.user?.userId;
+    const { id } = req.params;
+    if (typeof id !== "string") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid order ID",
+        });
+    }
+    if (!buyerId || !id) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    const order = await prisma_js_1.default.order.findFirst({
+        where: {
+            id,
+            buyerId,
+        },
+        include: {
+            items: {
+                include: {
+                    product: true,
+                },
+            },
+        },
+    });
+    if (!order) {
+        return res.status(404).json({
+            msg: "Order not found!!",
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        msg: "order retrived successfully",
+        order,
     });
 }

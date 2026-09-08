@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { createOrderSchema } from "../validators/order.validator.js";
 
 import prisma from "../config/prisma.js";
+import { success } from "zod";
 
 export async function createOrder(req: Request, res: Response) {
   const buyerId = req.user?.userId;
@@ -184,5 +185,48 @@ export async function getMyOrders(req: Request, res: Response) {
     success: true,
     count: orders.length,
     orders,
+  });
+}
+
+export async function getOrderById(req: Request, res: Response) {
+  const buyerId = req.user?.userId;
+  const { id } = req.params;
+
+  if (!buyerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order ID",
+    });
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      buyerId,
+    },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return res.status(404).json({
+      msg: "Order not found!!",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Order retrieved successfully",
+    order,
   });
 }
