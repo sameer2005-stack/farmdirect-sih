@@ -58,11 +58,55 @@ def chat(request: ChatRequest):
         history = get_history(request.session_id)
         intent = detect_intent(request.message)
         print("DETECTED INTENT:", intent)
+        recommendation_context = ""
+
+        if (
+            intent.get("intent") == "SELLING_RECOMMENDATION"
+            and intent.get("crop")
+            and intent.get("quantity")
+        ):
+            print("ML RECOMMENDATION TRIGGERED")
+            quantity = float(intent["quantity"])
+
+            if intent.get("unit", "").lower() in ["quintal", "quintals", "qtl"]:
+                quantity *= 100
+
+            recommendations = get_market_recommendation(
+                crop=intent["crop"],
+                quantity_kg=quantity,
+                transport_rate_per_km=25,
+                other_cost_per_kg=0.5,
+            )
+
+            print("ML RECOMMENDATIONS:", recommendations)
+            if recommendations:
+                best = recommendations[0]
+                recommendation_context = f"""
+KisanSetu ML recommendation for this farmer:
+
+Recommended market: {best['market_name']}
+State: {best['state']}
+District: {best['district']}
+Predicted price: ₹{best['predicted_price_per_quintal']:.2f}/quintal
+Distance: {best['distance_km']} km
+Expected net price (शुद्ध प्रापण मूल्य): ₹{best['net_price_per_kg']:.2f}/kg
+Estimated total net realization: ₹{best['total_net_realization']:.2f}
+
+IMPORTANT:
+- Use these ML results when answering the farmer.
+- Clearly state the recommended market.
+- Clearly state the expected शुद्ध प्रापण मूल्य.
+- Do not invent or change any numbers.
+- Explain that this is an estimate, not a guaranteed price.
+- Respond in the farmer's requested language.
+"""
 
         reply = generate_response(
             user_message=request.message,
             language=request.language,
             history=history,
+            recommendation_context=recommendation_context,
+
         )
         suggestions = generate_suggestions(
             request.message,

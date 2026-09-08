@@ -11,6 +11,7 @@ def generate_response(
     user_message: str,
     language: str = "auto",
     history: list[dict] | None = None,
+    recommendation_context: str = "",
 ) -> str:
 
     language_instruction = (
@@ -28,11 +29,23 @@ def generate_response(
         }
     ]
 
+    if recommendation_context:
+        input_messages.append(
+        {
+            "role": "user",
+            "content": (
+                "Use the following KisanSetu ML recommendation to answer "
+                "the farmer's request. These are model-generated results. "
+                "Do not change or invent the numbers.\n\n"
+                f"{recommendation_context}"
+            ),
+        }
+    )
+
     response = client.responses.create(
         model=OPENAI_MODEL,
         instructions=f"{SYSTEM_PROMPT}\n\n{language_instruction}",
         input=input_messages,
     )
 
-    return response.output_text
-
+    return response.output_text 

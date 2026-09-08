@@ -12,7 +12,11 @@ def get_market_candidates(
     This will later be replaced by backend/live market data.
     """
 
-    if crop.strip().lower() != "tomato":
+    crop_normalized = crop.strip().lower()
+
+    if crop_normalized in ["टमाटर", "tomato"]:
+        crop_normalized = "tomato"
+    else:
         return []
 
     return [
