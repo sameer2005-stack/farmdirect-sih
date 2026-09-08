@@ -27,6 +27,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   farmerProfile FarmerProfile?
+
+  buyerOrders  Order[] @relation("BuyerOrders")
+  farmerOrders Order[] @relation("FarmerOrders")
 }
 
 model FarmerProfile {
@@ -53,4 +56,33 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   farmer User @relation(fields: [farmerId], references: [id])
+  orderItems OrderItem[]
+}
+
+
+model Order {
+  id              String   @id @default(uuid())
+  buyerId         String
+  farmerId        String
+  status          String   @default("PENDING")
+  totalAmount     Float
+  deliveryAddress String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  buyer  User @relation("BuyerOrders", fields: [buyerId], references: [id])
+  farmer User @relation("FarmerOrders", fields: [farmerId], references: [id])
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Float
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
