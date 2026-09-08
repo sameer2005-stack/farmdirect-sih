@@ -34,7 +34,7 @@ class ChatResponse(BaseModel):
     suggestions: list[str]
 
 class RecommendationRequest(BaseModel):
-    market_candidates: list[dict]
+    crop: str = Field(..., min_length=1)
     quantity_kg: float = Field(..., gt=0)
     transport_rate_per_km: float = Field(..., ge=0)
     other_cost_per_kg: float = Field(default=0.0, ge=0)
@@ -99,7 +99,7 @@ def recommend(request: RecommendationRequest):
 
     try:
         recommendations = get_market_recommendation(
-            market_candidates=request.market_candidates,
+            crop=request.crop,
             quantity_kg=request.quantity_kg,
             transport_rate_per_km=request.transport_rate_per_km,
             other_cost_per_kg=request.other_cost_per_kg,
@@ -119,4 +119,3 @@ def recommend(request: RecommendationRequest):
             status_code=500,
             detail="Market recommendation is temporarily unavailable.",
         ) from exc
-    
