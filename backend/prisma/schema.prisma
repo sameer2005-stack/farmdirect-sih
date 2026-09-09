@@ -74,6 +74,7 @@ model Order {
   farmer User @relation("FarmerOrders", fields: [farmerId], references: [id])
 
   items OrderItem[]
+  delivery Delivery?
 }
 
 model OrderItem {
@@ -85,4 +86,18 @@ model OrderItem {
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+}
+
+model Delivery {
+  id                String   @id @default(uuid())
+  orderId           String   @unique
+  driverId          String?
+  pickupLocation    String
+  destination       String
+  status            String   @default("ASSIGNED")
+  estimatedTime     Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
 }
