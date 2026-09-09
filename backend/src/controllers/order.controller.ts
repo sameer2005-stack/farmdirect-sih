@@ -312,3 +312,59 @@ export async function updateOrderStatus(req: Request, res: Response) {
     order: updatedOrder,
   });
 }
+
+export async function getOrderTracking(
+  req: Request,
+  res: Response
+) {
+  const buyerId = req.user?.userId;
+  const { id } = req.params;
+
+  if (!buyerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order ID",
+    });
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      buyerId,
+    },
+    include: {
+      delivery: {
+        select: {
+          id: true,
+          status: true,
+          pickupLocation: true,
+          destination: true,
+          estimatedTime: true,
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    tracking: {
+      orderId: order.id,
+      orderStatus: order.status,
+      delivery: order.delivery,
+    },
+  });
+}
