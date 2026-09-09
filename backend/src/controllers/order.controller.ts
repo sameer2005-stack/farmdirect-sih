@@ -4,6 +4,7 @@ import { createOrderSchema } from "../validators/order.validator.js";
 
 import prisma from "../config/prisma.js";
 import { success } from "zod";
+import { createNotification } from "../services/notification.service.js";
 
 export async function createOrder(req: Request, res: Response) {
   const buyerId = req.user?.userId;
@@ -144,6 +145,7 @@ export async function createOrder(req: Request, res: Response) {
       }
       return orderPlacing;
     });
+    await createNotification(farmerId, "You received a new order", "NEW_ORDER");
 
     return res.status(201).json({
       success: true,
@@ -296,6 +298,12 @@ export async function updateOrderStatus(req: Request, res: Response) {
       message: "Order not found",
     });
   }
+  if (order.status !== "PENDING") {
+    return res.status(400).json({
+      success: false,
+      message: "Only pending orders can be accepted or rejected",
+    });
+  }
 
   const updatedOrder = await prisma.order.update({
     where: {
@@ -305,6 +313,13 @@ export async function updateOrderStatus(req: Request, res: Response) {
       status,
     },
   });
+  await createNotification(
+    order.buyerId,
+    status === "ACCEPTED"
+      ? "Your order has been accepted by the farmer"
+      : "Your order has been rejected by the farmer",
+    status === "ACCEPTED" ? "ORDER_ACCEPTED" : "ORDER_REJECTED",
+  );
 
   return res.status(200).json({
     success: true,
@@ -313,10 +328,7 @@ export async function updateOrderStatus(req: Request, res: Response) {
   });
 }
 
-export async function getOrderTracking(
-  req: Request,
-  res: Response
-) {
+export async function getOrderTracking(req: Request, res: Response) {
   const buyerId = req.user?.userId;
   const { id } = req.params;
 

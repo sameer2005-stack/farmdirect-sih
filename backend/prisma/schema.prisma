@@ -30,6 +30,7 @@ model User {
 
   buyerOrders  Order[] @relation("BuyerOrders")
   farmerOrders Order[] @relation("FarmerOrders")
+  notifications Notification[]
 }
 
 model FarmerProfile {
@@ -100,4 +101,15 @@ model Delivery {
   updatedAt         DateTime @updatedAt
 
   order Order @relation(fields: [orderId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }

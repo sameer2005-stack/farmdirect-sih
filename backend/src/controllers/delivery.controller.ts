@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma.js";
+import { createNotification } from "../services/notification.service.js";
 
 export async function createDelivery(req: Request, res: Response) {
   const { orderId, pickupLocation, destination } = req.body;
@@ -56,6 +57,11 @@ export async function createDelivery(req: Request, res: Response) {
       destination,
     },
   });
+  await createNotification(
+    order.buyerId,
+    "Delivery has been created for your order",
+    "DELIVERY_CREATED",
+  );
 
   return res.status(201).json({
     success: true,
@@ -86,6 +92,9 @@ export async function updateDeliveryStatus(req: Request, res: Response) {
   const delivery = await prisma.delivery.findUnique({
     where: {
       id,
+    },
+    include: {
+      order: true,
     },
   });
 
@@ -125,6 +134,11 @@ export async function updateDeliveryStatus(req: Request, res: Response) {
       status,
     },
   });
+  await createNotification(
+    delivery.order.buyerId,
+    `Your delivery status is now ${status}`,
+    "DELIVERY_STATUS_UPDATED",
+  );
 
   return res.status(200).json({
     success: true,
@@ -133,10 +147,7 @@ export async function updateDeliveryStatus(req: Request, res: Response) {
   });
 }
 
-export async function assignDeliveryPartner(
-  req: Request,
-  res: Response
-) {
+export async function assignDeliveryPartner(req: Request, res: Response) {
   const farmerId = req.user?.userId;
   const { id } = req.params;
   const { driverId } = req.body;
