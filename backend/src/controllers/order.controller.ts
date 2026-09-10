@@ -3,6 +3,8 @@ import { Request, Response } from "express";
 import { createOrderSchema } from "../validators/order.validator.js";
 
 import prisma from "../config/prisma.js";
+import { success } from "zod";
+import { createNotification } from "../services/notification.service.js";
 
 export async function createOrder(req: Request, res: Response) {
   const buyerId = req.user?.userId;
@@ -143,6 +145,7 @@ export async function createOrder(req: Request, res: Response) {
       }
       return orderPlacing;
     });
+    await createNotification(farmerId, "You received a new order", "NEW_ORDER");
 
     return res.status(201).json({
       success: true,
@@ -184,5 +187,196 @@ export async function getMyOrders(req: Request, res: Response) {
     success: true,
     count: orders.length,
     orders,
+  });
+}
+
+export async function getOrderById(req: Request, res: Response) {
+  const buyerId = req.user?.userId;
+  const { id } = req.params;
+
+  if (!buyerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order ID",
+    });
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      buyerId,
+    },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return res.status(404).json({
+      msg: "Order not found!!",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "Order retrieved successfully",
+    order,
+  });
+}
+
+export async function getFarmerOrders(req: Request, res: Response) {
+  const farmerId = req.user?.userId;
+
+  if (!farmerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  const orders = await prisma.order.findMany({
+    where: {
+      farmerId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    count: orders.length,
+    orders,
+  });
+}
+
+export async function updateOrderStatus(req: Request, res: Response) {
+  const farmerId = req.user?.userId;
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!farmerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order ID",
+    });
+  }
+
+  if (status !== "ACCEPTED" && status !== "REJECTED") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid status. Only ACCEPTED or REJECTED are allowed.",
+    });
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      farmerId,
+    },
+  });
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order not found",
+    });
+  }
+  if (order.status !== "PENDING") {
+    return res.status(400).json({
+      success: false,
+      message: "Only pending orders can be accepted or rejected",
+    });
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: order.id,
+    },
+    data: {
+      status,
+    },
+  });
+  await createNotification(
+    order.buyerId,
+    status === "ACCEPTED"
+      ? "Your order has been accepted by the farmer"
+      : "Your order has been rejected by the farmer",
+    status === "ACCEPTED" ? "ORDER_ACCEPTED" : "ORDER_REJECTED",
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Order status updated successfully",
+    order: updatedOrder,
+  });
+}
+
+export async function getOrderTracking(req: Request, res: Response) {
+  const buyerId = req.user?.userId;
+  const { id } = req.params;
+
+  if (!buyerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  if (typeof id !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid order ID",
+    });
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      buyerId,
+    },
+    include: {
+      delivery: {
+        select: {
+          id: true,
+          status: true,
+          pickupLocation: true,
+          destination: true,
+          estimatedTime: true,
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    tracking: {
+      orderId: order.id,
+      orderStatus: order.status,
+      delivery: order.delivery,
+    },
   });
 }

@@ -5,6 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createOrder = createOrder;
 exports.getMyOrders = getMyOrders;
+exports.getOrderById = getOrderById;
+exports.getFarmerOrders = getFarmerOrders;
+exports.updateOrderStatus = updateOrderStatus;
+exports.getOrderTracking = getOrderTracking;
 const order_validator_js_1 = require("../validators/order.validator.js");
 const prisma_js_1 = __importDefault(require("../config/prisma.js"));
 async function createOrder(req, res) {
@@ -151,5 +155,161 @@ async function getMyOrders(req, res) {
         success: true,
         count: orders.length,
         orders,
+    });
+}
+async function getOrderById(req, res) {
+    const buyerId = req.user?.userId;
+    const { id } = req.params;
+    if (!buyerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    if (typeof id !== "string") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid order ID",
+        });
+    }
+    const order = await prisma_js_1.default.order.findFirst({
+        where: {
+            id,
+            buyerId,
+        },
+        include: {
+            items: {
+                include: {
+                    product: true,
+                },
+            },
+        },
+    });
+    if (!order) {
+        return res.status(404).json({
+            msg: "Order not found!!",
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        message: "Order retrieved successfully",
+        order,
+    });
+}
+async function getFarmerOrders(req, res) {
+    const farmerId = req.user?.userId;
+    if (!farmerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    const orders = await prisma_js_1.default.order.findMany({
+        where: {
+            farmerId,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    return res.status(200).json({
+        success: true,
+        count: orders.length,
+        orders,
+    });
+}
+async function updateOrderStatus(req, res) {
+    const farmerId = req.user?.userId;
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!farmerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    if (typeof id !== "string") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid order ID",
+        });
+    }
+    if (status !== "ACCEPTED" && status !== "REJECTED") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid status. Only ACCEPTED or REJECTED are allowed.",
+        });
+    }
+    const order = await prisma_js_1.default.order.findFirst({
+        where: {
+            id,
+            farmerId,
+        },
+    });
+    if (!order) {
+        return res.status(404).json({
+            success: false,
+            message: "Order not found",
+        });
+    }
+    const updatedOrder = await prisma_js_1.default.order.update({
+        where: {
+            id: order.id,
+        },
+        data: {
+            status,
+        },
+    });
+    return res.status(200).json({
+        success: true,
+        message: "Order status updated successfully",
+        order: updatedOrder,
+    });
+}
+async function getOrderTracking(req, res) {
+    const buyerId = req.user?.userId;
+    const { id } = req.params;
+    if (!buyerId) {
+        return res.status(401).json({
+            success: false,
+            message: "Authentication required",
+        });
+    }
+    if (typeof id !== "string") {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid order ID",
+        });
+    }
+    const order = await prisma_js_1.default.order.findFirst({
+        where: {
+            id,
+            buyerId,
+        },
+        include: {
+            delivery: {
+                select: {
+                    id: true,
+                    status: true,
+                    pickupLocation: true,
+                    destination: true,
+                    estimatedTime: true,
+                },
+            },
+        },
+    });
+    if (!order) {
+        return res.status(404).json({
+            success: false,
+            message: "Order not found",
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        tracking: {
+            orderId: order.id,
+            orderStatus: order.status,
+            delivery: order.delivery,
+        },
     });
 }
