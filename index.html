@@ -417,7 +417,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const API_BASE_URL = "http://127.0.0.1:5000";
+  const API_BASE_URL="https://farmdirect-backend-8o93.onrender.com";
 
   let authToken = localStorage.getItem("authToken");
   let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
@@ -577,15 +577,14 @@ async function loadFarmerOrders() {
   }
 }
 
-function renderBuyerRecommendations() {
-
-  const buyerGrid = document.getElementById("buyerRecommendations");
+function renderBuyerRecommendations(){ 
+const buyerGrid = document.getElementById("buyerRecommendations");
 
   if (!buyerGrid) return;
 
   buyerGrid.innerHTML = "";
 
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     buyerGrid.innerHTML = `
       <p style="color:var(--muted);font-size:13px;">
         No produce is currently available.
@@ -594,17 +593,17 @@ function renderBuyerRecommendations() {
     return;
   }
 
-  products.slice(0, 3).forEach((product) => {
+  products.slice(0, 5).forEach((product) => {
 
     const farmerName =
       product.farmer?.name || "Verified Farmer";
 
     const image =
       product.img ||
-      "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=150&q=80";
+      "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=85";
 
     buyerGrid.insertAdjacentHTML("beforeend", `
-      
+
       <div class="inventory-row">
 
         <img
@@ -613,23 +612,46 @@ function renderBuyerRecommendations() {
         >
 
         <div>
+
           <strong>${product.name}</strong>
+
           <span>
             ${farmerName} · ${product.category || "Fresh Produce"}
           </span>
+
+          <span>
+            Available: ${product.quantity} ${product.unit || "kg"}
+          </span>
+
         </div>
 
-        <b>
-          ₹${product.price}/${product.unit || "kg"}
-        </b>
+        <div style="text-align:right;">
+
+          <b>
+            ₹${product.price}/${product.unit || "kg"}
+          </b>
+
+          <button
+            class="btn btn-primary"
+            style="
+              margin-top:7px;
+              padding:7px 10px;
+              font-size:11px;
+            "
+            onclick="addToCart('${String(product.name).replace(/'/g, "\\'")}')"
+          >
+            🛒 Add
+          </button>
+
+        </div>
 
       </div>
 
     `);
 
   });
-}
 
+}
 function searchBuyerProducts() {
 
   const searchInput = document.getElementById("buyerSearch");
@@ -1754,6 +1776,54 @@ async function viewOrderDetails(orderId) {
   } catch (error) {
     console.error("Registration error:", error);
     showToast(error.message);
+  }
+}
+async function handleFarmerRegistration() {
+
+  const name = document.getElementById("registerName").value.trim();
+  const email = document.getElementById("registerEmail").value.trim();
+  const phone = document.getElementById("registerPhone").value.trim();
+  const password = document.getElementById("registerPassword").value;
+
+  if (!name || !email || !phone || !password) {
+    showToast("Please fill all fields");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        password,
+        role: "FARMER"
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Registration failed");
+    }
+
+    showToast("Farmer registered successfully! 🎉");
+
+    openModal("login");
+
+  } catch (error) {
+
+    console.error("Registration error:", error);
+
+    showToast(error.message || "Unable to register");
+
   }
 }
 async function handleAddProduct() {
