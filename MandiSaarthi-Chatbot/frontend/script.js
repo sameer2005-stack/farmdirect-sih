@@ -70,7 +70,7 @@ async function sendMessage() {
 
     try {
 
-        const response = await fetch("http://mandisaarthi.onrender.com/chat", {
+        const response = await fetch("https://mandisaarthi.onrender.com/chat", {
 
             method: "POST",
 
