@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FarmDirect — SIH Prototype</title>
+  <meta name="description" content="Direct farm-to-consumer marketplace prototype for Smart India Hackathon." />
+  <style>
+    :root{
+      --green:#08752b;
+      --green-dark:#045b20;
+      --green-soft:#eaf6e9;
+      --cream:#fbfaf5;
+      --text:#111512;
+      --muted:#667066;
+      --line:#e3e8df;
+      --orange:#e88a22;
+      --white:#fff;
+      --shadow:0 12px 35px rgba(17,50,24,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:var(--cream);
+    }
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .container{width:min(1180px,92%);margin:auto}
+    .nav{
+      position:sticky;top:0;z-index:50;
+      background:rgba(255,255,255,.94);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav-inner{height:72px;display:flex;align-items:center;gap:30px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:800;font-size:20px}
+    .logo-mark{width:38px;height:38px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:white;font-size:21px}
+    .logo small{display:block;font-size:10px;color:var(--muted);font-weight:600}
+    .links{display:flex;gap:27px;margin-left:auto}
+    .links a{color:#252b25;text-decoration:none;font-size:14px}
+    .links a:hover{color:var(--green)}
+    .nav-actions{display:flex;gap:10px}
+    .btn{
+      border:0;border-radius:10px;padding:12px 19px;font-weight:750;
+      transition:.2s transform,.2s box-shadow,.2s background;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--green);color:white;box-shadow:0 8px 20px rgba(8,117,43,.18)}
+    .btn-primary:hover{background:var(--green-dark)}
+    .btn-outline{background:white;border:1px solid #b9c6b9;color:var(--text)}
+    .btn-light{background:var(--green-soft);color:var(--green)}
+    .menu{display:none;border:0;background:transparent;font-size:25px}
+
+    .hero{padding:42px 0 18px}
+    .hero-grid{
+      min-height:470px;border-radius:24px;overflow:hidden;
+      display:grid;grid-template-columns:1fr 1.05fr;
+      background:white;box-shadow:var(--shadow);border:1px solid var(--line)
+    }
+    .hero-copy{padding:62px 48px;display:flex;flex-direction:column;justify-content:center}
+    .eyebrow{display:inline-flex;align-self:flex-start;gap:7px;background:var(--green-soft);color:var(--green);border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.03em}
+    h1{font-size:clamp(42px,5vw,65px);line-height:1.02;margin:22px 0 16px;letter-spacing:-.045em}
+    h1 span{color:var(--green)}
+    .hero-copy p{font-size:17px;line-height:1.7;color:var(--muted);max-width:550px}
+    .cta{display:flex;gap:12px;margin:25px 0 28px;flex-wrap:wrap}
+    .stats{display:flex;gap:28px}
+    .stat{padding-right:24px;border-right:1px solid var(--line)}
+    .stat:last-child{border:0}
+    .stat strong{display:block;font-size:21px;color:var(--green)}
+    .stat span{font-size:12px;color:var(--muted)}
+    .hero-image{
+      position:relative;min-height:470px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.12),rgba(255,255,255,0)),
+        url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=85") center/cover;
+    }
+    .why{
+      position:absolute;right:28px;top:28px;background:rgba(255,255,255,.95);
+      padding:22px;border-radius:18px;width:225px;box-shadow:var(--shadow)
+    }
+    .why h3{margin:0 0 14px}
+    .why div{font-size:12px;margin:10px 0;color:#394039}
+    .why b{color:var(--green);margin-right:6px}
+
+    .section{padding:42px 0}
+    .section-title{text-align:center;margin-bottom:24px}
+    .section-title h2{font-size:32px;margin:0 0 7px;letter-spacing:-.03em}
+    .section-title p{margin:0;color:var(--muted)}
+    .transparency{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card{background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .price-card{padding:25px}
+    .price-card h3{margin:0 0 20px}
+    .price-list{display:grid;gap:12px}
+    .row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dashed #dce3da;font-size:14px}
+    .row:last-child{border:0}
+    .price-highlight{background:#fff1e7;border-radius:12px;padding:13px;font-weight:800;color:#c84e16}
+    .direct{background:#f0f8ed}
+    .direct strong{color:var(--green)}
+    .save{text-align:center;color:var(--green);font-weight:750;margin-top:14px}
+
+    .products{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+    .product{overflow:hidden}
+    .product-img{height:145px;width:100%;object-fit:cover}
+    .product-body{padding:15px}
+    .tag{display:inline-block;font-size:10px;padding:5px 8px;border-radius:999px;background:var(--green-soft);color:var(--green);font-weight:800}
+    .product h3{font-size:15px;margin:10px 0 5px}
+    .product p{font-size:11px;color:var(--muted);margin:0 0 10px}
+    .price{font-size:18px;font-weight:850;color:var(--green)}
+    .market{font-size:10px;color:var(--muted);margin-left:5px}
+    .add{width:100%;margin-top:12px;padding:10px;border-radius:9px}
+
+    .how{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .how .card{padding:24px;text-align:center}
+    .icon{font-size:31px}
+    .how h3{font-size:16px;margin:12px 0 7px}
+    .how p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .dashboard{padding:24px}
+    .dash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .dash-head h3{margin:0}
+    .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .mini{background:#f7faf5;border:1px solid var(--line);padding:14px;border-radius:12px}
+    .mini span{display:block;color:var(--muted);font-size:11px}
+    .mini strong{display:block;color:var(--green);font-size:20px;margin-top:5px}
+    .chart{height:150px;display:flex;align-items:flex-end;gap:10px;margin-top:20px;padding:10px 5px;border-bottom:1px solid var(--line)}
+    .bar{flex:1;background:#75ad76;border-radius:7px 7px 0 0;min-height:18px}
+    .insight{margin-top:15px;background:#fff7e8;border:1px solid #f2dfb6;padding:13px;border-radius:11px;font-size:12px}
+    .inventory{display:grid;gap:9px}
+    .inventory-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:11px;padding:10px}
+    .inventory-row img{width:48px;height:42px;object-fit:cover;border-radius:8px}
+    .inventory-row div{flex:1;font-size:12px}
+    .inventory-row strong{display:block}
+    .inventory-row span{color:var(--muted)}
+
+    .footer{
+      margin-top:35px;background:#075d23;color:white;padding:35px 0
+    }
+    .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:25px}
+    .footer h3,.footer h4{margin-top:0}
+    .footer p,.footer a{color:#d8ebdc;font-size:12px;line-height:1.7}
+    .footer a{display:block;text-decoration:none;margin:7px 0}
+    .mobile-nav{display:none}
+
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center;z-index:100;padding:20px
+    }
+    .modal.show{display:grid}
+    .modal-box{background:white;width:min(500px,100%);border-radius:20px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.2)}
+    .modal-box h2{margin-top:0}
+    .close{float:right;border:0;background:#f1f4ef;border-radius:50%;width:32px;height:32px}
+    .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+    .role{border:1px solid var(--line);background:#fff;border-radius:15px;padding:22px;text-align:left}
+    .role:hover{border-color:var(--green);background:var(--green-soft)}
+    .toast{position:fixed;right:20px;bottom:20px;background:#13351d;color:white;padding:13px 18px;border-radius:11px;display:none;z-index:120;font-size:13px}
+    .toast.show{display:block}
+
+    @media(max-width:900px){
+      .links{display:none}.menu{display:block;margin-left:auto}
+      .nav-actions{display:none}
+      .hero-grid{grid-template-columns:1fr}.hero-image{min-height:360px}
+      .hero-copy{padding:45px 30px}
+      .transparency,.dash-grid{grid-template-columns:1fr}
+      .products{grid-template-columns:repeat(2,1fr)}
+      .how{grid-template-columns:repeat(2,1fr)}
+      .footer-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:560px){
+      .hero{padding-top:18px}
+      .hero-copy{padding:32px 22px}
+      h1{font-size:43px}
+      .stats{gap:12px}.stat{padding-right:10px}
+      .stat strong{font-size:16px}
+      .products,.how{grid-template-columns:1fr}
+      .hero-image{min-height:300px}
+      .why{right:15px;top:15px;width:190px}
+      .footer-grid{grid-template-columns:1fr}
+      .role-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="logo" href="#home">
+      <div class="logo-mark">🌱</div>
+      <div>FarmDirect<small>From Farm to You</small></div>
+    </a>
+    <nav class="links">
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#how">How It Works</a>
+      <a href="#farmers">Farmers</a>
+      <a href="#about">About Us</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn btn-outline"onclick="openCart()">🛒 <span id="cartCount">0</span></button>
+      <button
+  id="accountButton"
+  class="btn btn-outline"
+  onclick="handleAccountClick()"
+>
+  Login
+</button>
+      <button class="btn btn-primary" onclick="openModal('role')">Get Started</button>
+    </div>
+    <button class="menu" onclick="toggleMobile()">☰</button>
+  </div>
+  <div id="mobileNav" class="mobile-nav container" style="padding-bottom:15px">
+    <a href="#home">Home</a> · <a href="#products">Products</a> · <a href="#how">How It Works</a> · <a href="#farmers">Farmers</a>
+  </div>
+</header>
+
+<main id="home">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">🌿 DIRECT. TRANSPARENT. FAIR.</span>
+        <h1>From the farm,<br><span>directly to you.</span></h1>
+        <p>Connect directly with verified farmers and buy fresh produce at fair prices—while farmers keep more of what they earn.</p>
+        <div class="cta">
+          <button class="btn btn-primary" onclick="scrollToId('products')">🛒 Start Shopping</button>
+          <button class="btn btn-outline" onclick="openModal('farmer')">🌱 Sell Your Produce</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>10,000+</strong><span>Farmers</span></div>
+          <div class="stat"><strong>25,000+</strong><span>Buyers</span></div>
+          <div class="stat"><strong>100%</strong><span>Price Transparency</span></div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="why">
+          <h3>Why FarmDirect?</h3>
+          <div><b>✓</b> Fair prices for farmers</div>
+          <div><b>✓</b> Fresh & quality produce</div>
+          <div><b>✓</b> No unnecessary middlemen</div>
+          <div><b>✓</b> Secure payments</div>
+          <div><b>✓</b> Fast delivery</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="container">
+      <div class="section-title">
+        <h2>Where does your money go?</h2>
+        <p>See the difference a direct connection can make.</p>
+      </div>
+      <div class="transparency">
+        <div class="card price-card">
+          <h3>Traditional Supply Chain</h3>
+          <div class="price-list">
+            <div class="row"><span>Farmer</span><strong>₹20/kg</strong></div>
+            <div class="row"><span>Aggregator</span><strong>₹24/kg</strong></div>
+            <div class="row"><span>Wholesaler</span><strong>₹28/kg</strong></div>
+            <div class="row"><span>Retailer</span><strong>₹35/kg</strong></div>
+            <div class="price-highlight row"><span>Consumer Pays</span><strong>₹40/kg</strong></div>
+          </div>
+        </div>
+        <div class="card price-card direct">
+          <h3>With FarmDirect</h3>
+          <div class="price-list">
+            <div class="row"><span>Farmer Receives</span><strong>₹30/kg</strong></div>
+            <div class="row"><span>Platform + Logistics</span><strong>₹4/kg</strong></div>
+            <div class="price-highlight row direct"><span>You Pay</span><strong>₹34/kg</strong></div>
+          </div>
+          <div class="save">✓ Save money. Support farmers.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="products">
+    <div class="container">
+      <div class="section-title">
+        <h2>Fresh from nearby farms</h2>
+        <p>Verified produce from farmers you can trust.</p>
+      </div>
+      <div class="products" id="productGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-title">
+        <h2>How it works</h2>
+        <p>Simple, transparent and built for both sides of the marketplace.</p>
+      </div>
+      <div class="how">
+        <div class="card"><div class="icon">🌱</div><h3>Farmers List Produce</h3><p>Add crop, quantity, quality and your fair selling price.</p></div>
+        <div class="card"><div class="icon">🤝</div><h3>Buyers Connect</h3><p>Households, retailers, restaurants and institutions discover farmers.</p></div>
+        <div class="card"><div class="icon">💳</div><h3>Secure Payment</h3><p>Digital transactions with clear price breakdowns.</p></div>
+        <div class="card"><div class="icon">🚚</div><h3>Delivery</h3><p>Coordinate pickup and delivery with real-time order tracking.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="farmers">
+    <div class="container">
+      <div class="section-title">
+        <h2>Prototype dashboards</h2>
+        <p>One platform, two powerful experiences.</p>
+      </div>
+      <div class="dash-grid">
+        <div class="card dashboard">
+          <div class="dash-head">
+  <h3>👩‍🌾 Farmer Dashboard</h3>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+    <button
+      class="btn btn-light"
+      onclick="openModal('addProduct')"
+    >
+      + Add Produce
+    </button>
+
+    <button
+      class="btn btn-primary"
+      onclick="getAIRecommendation()"
+    >
+      🤖 AI Recommendation
+    </button>
+
+  </div>
+</div>
+            <div class="mini">
+  <span>Available Produce</span>
+  <strong id="availableProduce">0 kg</strong>
+</div>
+
+<div class="mini">
+  <span>Orders</span>
+  <strong id="farmerOrders">0</strong>
+</div>
+
+<div class="mini">
+  <span>Earnings</span>
+  <strong id="farmerEarnings">₹0</strong>
+</div>
+          
+          <h4>Market Insights</h4>
+
+<div class="row">
+  <span>Recommended Market</span>
+  <strong id="recommendedMarket">—</strong>
+</div>
+
+<div class="row">
+  <span>Predicted Market Price</span>
+  <strong id="predictedMarketPrice">—</strong>
+</div>
+
+<div class="row">
+  <span>Expected Net Realization</span>
+  <strong id="expectedNetRealization" style="color:var(--green)">
+    —
+  </strong>
+</div>
+          <div class="chart">
+            <div class="bar" style="height:45%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:67%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:84%"></div><div class="bar" style="height:100%"></div>
+          </div>
+          <div class="insight">💡 Demand is expected to increase this weekend. Consider listing an additional 200 kg.</div>
+        </div>
+
+        <div class="card dashboard">
+          <div class="dash-head"><h3>🛒 Buyer Dashboard</h3><button class="btn btn-light" onclick="scrollToId('products')">Browse</button></div>
+          <input
+  id="buyerSearch"
+  type="text"
+  placeholder="🔍 Search tomatoes, potatoes, onions..."
+  oninput="searchBuyerProducts()"
+  style="
+    width:100%;
+    padding:13px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:15px;
+    outline:none;
+  "
+>
+          <h4>Recommended for you</h4>
+
+<div class="inventory" id="buyerRecommendations">
+  <p style="color:var(--muted);font-size:13px;">
+    Loading fresh produce...
+  </p>
+</div>
+          <div class="insight" style="background:var(--green-soft);border-color:#cfe4cc">🌿 Every order shows how much goes directly to the farmer.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><h3>🌱 FarmDirect</h3><p>Direct farm-to-consumer marketplace designed to improve farmer income, price transparency and access to fresh produce.</p></div>
+    <div><h4>Platform</h4><a href="#products">Products</a><a href="#how">How It Works</a><a href="#farmers">Farmer Dashboard</a></div>
+    <div><h4>For Farmers</h4><a href="#" onclick="openModal('farmer');return false">Register</a><a href="#">Market Prices</a><a href="#">Logistics</a></div>
+    <div><h4>For Buyers</h4><a href="#products">Shop Produce</a><a href="#">Track Orders</a><a href="#">Support</a></div>
+  </div>
+</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE_URL = "http://127.0.0.1:5000";
+
+  let authToken = localStorage.getItem("authToken");
+  let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+  let products = [];
+
+let cart = [];
+
+const grid = document.getElementById("productGrid");
+
+function renderProducts() {
+
+   grid.innerHTML = "";
+
+  products.forEach((p) => {
+
+    const farmerName =
+      p.farmer?.name || p.farmer || "Verified Farmer";
+
+    let image = "";
+
+    const productName = (p.name || "").toLowerCase();
+
+    if (productName.includes("tomato")) {
+      image = "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=500&q=85";
+    } 
+    else if (productName.includes("potato")) {
+      image = "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=500&q=85";
+    } 
+    else if (productName.includes("onion")) {
+      image = "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=500&q=85";
+    } 
+    else if (productName.includes("mustard")) {
+  image = "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=500&q=85";
+}
+else if (
+  productName.includes("chilli") ||
+  productName.includes("chili")
+) {
+  image = "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=500&q=85";
+}
+else if (productName.includes("cucumber")) {
+  image = "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=500&q=85";
+}
+else {
+  image = "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=500&q=85";
+}
+
+    grid.insertAdjacentHTML("beforeend", `
+
+      <article class="card product">
+
+        <img
+          class="product-img"
+          src="${image}"
+          alt="${p.name}"
+        >
+
+        <div class="product-body">
+
+          <span class="tag">
+            ✓ Fresh & Verified
+          </span>
+
+          <h3>${p.name}</h3>
+
+          <p>
+            ${farmerName} ✓<br>
+            ${p.category || "Fresh Produce"}
+          </p>
+
+          <span class="price">
+            ₹${p.price}/${p.unit || "kg"}
+          </span>
+
+          <span class="market">
+            Available: ${p.quantity} ${p.unit || "kg"}
+          </span>
+
+          <button
+            class="btn btn-primary add"
+            onclick="addToCart('${p.name}')"
+          >
+            🛒 Add to Cart
+          </button>
+
+        </div>
+
+      </article>
+
+    `);
+
+  });
+}
+async function loadProducts() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/products`);
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to load products");
+    }
+
+    console.log("Products from backend:", data.products);
+
+  products = data.products;
+
+  renderProducts();
+  renderBuyerRecommendations();
+
+  const farmerProducts = products.filter(
+  (product) => product.farmer?.id === currentUser?.id
+);
+
+const totalQuantity = farmerProducts.reduce(
+  (total, product) => total + Number(product.quantity || 0),
+  0
+);
+
+document.getElementById("availableProduce").textContent =
+  `${totalQuantity} kg`;
+  } catch (error) {
+    console.error("Load products error:", error);
+    showToast("Could not load products");
+  }
+}
+
+async function loadFarmerOrders() {
+  if (!authToken || currentUser?.role !== "FARMER") {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/orders/farmer`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${authToken}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to load farmer orders");
+    }
+
+    document.getElementById("farmerOrders").textContent =
+      data.count ?? (data.orders || []).length;
+
+    console.log("Farmer orders:", data.orders);
+
+  } catch (error) {
+    console.error("Load farmer orders error:", error);
+  }
+}
+
+function renderBuyerRecommendations() {
+
+  const buyerGrid = document.getElementById("buyerRecommendations");
+
+  if (!buyerGrid) return;
+
+  buyerGrid.innerHTML = "";
+
+  if (products.length === 0) {
+    buyerGrid.innerHTML = `
+      <p style="color:var(--muted);font-size:13px;">
+        No produce is currently available.
+      </p>
+    `;
+    return;
+  }
+
+  products.slice(0, 3).forEach((product) => {
+
+    const farmerName =
+      product.farmer?.name || "Verified Farmer";
+
+    const image =
+      product.img ||
+      "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=150&q=80";
+
+    buyerGrid.insertAdjacentHTML("beforeend", `
+      
+      <div class="inventory-row">
+
+        <img
+          src="${image}"
+          alt="${product.name}"
+        >
+
+        <div>
+          <strong>${product.name}</strong>
+          <span>
+            ${farmerName} · ${product.category || "Fresh Produce"}
+          </span>
+        </div>
+
+        <b>
+          ₹${product.price}/${product.unit || "kg"}
+        </b>
+
+      </div>
+
+    `);
+
+  });
+}
+
+function searchBuyerProducts() {
+
+  const searchInput = document.getElementById("buyerSearch");
+
+  if (!searchInput) return;
+
+  const query = searchInput.value.trim().toLowerCase();
+
+  const buyerGrid =
+    document.getElementById("buyerRecommendations");
+
+  if (!buyerGrid) return;
+
+  const filteredProducts = products.filter((product) => {
+
+    const name = (product.name || "").toLowerCase();
+
+    const category = (product.category || "").toLowerCase();
+
+    const farmer =
+      (product.farmer?.name || "").toLowerCase();
+
+    return (
+      name.includes(query) ||
+      category.includes(query) ||
+      farmer.includes(query)
+    );
+
+  });
+
+  buyerGrid.innerHTML = "";
+
+  if (filteredProducts.length === 0) {
+
+    buyerGrid.innerHTML = `
+      <p style="color:var(--muted);font-size:13px;">
+        No matching produce found.
+      </p>
+    `;
+
+    return;
+  }
+
+  filteredProducts.forEach((product) => {
+
+    const farmerName =
+      product.farmer?.name || "Verified Farmer";
+
+    let image = "";
+
+    const productName =
+      (product.name || "").toLowerCase();
+
+    if (productName.includes("tomato")) {
+      image =
+        "https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=300&q=85";
+    }
+    else if (productName.includes("onion")) {
+      image =
+        "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=300&q=85";
+    }
+    else if (
+      productName.includes("chilli") ||
+      productName.includes("chili")
+    ) {
+      image =
+        "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=300&q=85";
+    }
+    else if (productName.includes("cucumber")) {
+      image =
+        "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=300&q=85";
+    }
+    else {
+      image =
+        "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=85";
+    }
+
+    buyerGrid.insertAdjacentHTML("beforeend", `
+
+      <div class="inventory-row">
+
+        <img
+          src="${image}"
+          alt="${product.name}"
+        >
+
+        <div>
+          <strong>${product.name}</strong>
+
+          <span>
+            ${farmerName} · ${product.category || "Fresh Produce"}
+          </span>
+
+          <span>
+            Available: ${product.quantity} ${product.unit || "kg"}
+          </span>
+        </div>
+
+        <div style="text-align:right;">
+
+          <b>
+            ₹${product.price}/${product.unit || "kg"}
+          </b>
+
+          <button
+            class="btn btn-primary"
+            style="
+              margin-top:7px;
+              padding:7px 10px;
+              font-size:11px;
+            "
+            onclick="addToCart('${product.name}')"
+          >
+            🛒 Add
+          </button>
+
+        </div>
+
+      </div>
+
+    `);
+
+  });
+}
+  
+
+function addToCart(name) {
+
+  const product = products.find(
+    (p) => p.name === name
+  );
+
+  if (!product) {
+    showToast("Product not found");
+    return;
+  }
+
+  const existingItem = cart.find(
+    (item) => item.id === product.id
+  );
+
+  if (existingItem) {
+    existingItem.cartQuantity += 1;
+  } else {
+    cart.push({
+      ...product,
+      cartQuantity: 1
+    });
+  }
+
+  document.getElementById("cartCount").textContent =
+    cart.reduce(
+      (total, item) => total + item.cartQuantity,
+      0
+    );
+
+  showToast(`${product.name} added to cart 🛒`);
+}
+
+  
+function openCart() {
+
+  if (cart.length === 0) {
+    showToast("Your cart is empty 🛒");
+    return;
+  }
+
+  let total = 0;
+
+  const itemsHTML = cart.map((product, index) => {
+
+    const quantity = product.cartQuantity || 1;
+    const price = Number(product.price || 0);
+    const itemTotal = price * quantity;
+
+    total += itemTotal;
+
+    return `
+      <div
+        class="cart-item"
+        data-cart-index="${index}"
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          padding:14px 0;
+          border-bottom:1px solid var(--line);
+        "
+      >
+
+        <div style="flex:1;">
+
+          <strong style="font-size:15px;">
+            ${product.name}
+          </strong>
+
+          <p style="
+            margin:4px 0;
+            color:var(--muted);
+            font-size:12px;
+          ">
+            ${product.farmer?.name || "Verified Farmer"}
+          </p>
+
+          <span style="
+            color:var(--green);
+            font-size:13px;
+            font-weight:700;
+          ">
+            ₹${price}/${product.unit || "kg"}
+          </span>
+
+        </div>
+
+        <div style="text-align:center;">
+
+          <div style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+          ">
+
+            <button
+              onclick="changeCartQuantity(${index}, -1)"
+              style="
+                width:28px;
+                height:28px;
+                border:1px solid var(--line);
+                background:white;
+                border-radius:7px;
+                cursor:pointer;
+                font-weight:bold;
+              "
+            >
+              −
+            </button>
+
+            <strong class="cart-quantity">
+              ${quantity}
+            </strong>
+
+            <button
+              onclick="changeCartQuantity(${index}, 1)"
+              style="
+                width:28px;
+                height:28px;
+                border:1px solid var(--line);
+                background:white;
+                border-radius:7px;
+                cursor:pointer;
+                font-weight:bold;
+              "
+            >
+              +
+            </button>
+
+          </div>
+
+          <button
+            onclick="removeFromCart(${index})"
+            style="
+              border:0;
+              background:none;
+              color:#d33;
+              font-size:11px;
+              margin-top:6px;
+              cursor:pointer;
+            "
+          >
+            Remove
+          </button>
+
+        </div>
+
+        <strong
+          class="cart-item-total"
+          style="min-width:70px;text-align:right;"
+        >
+          ₹${itemTotal.toFixed(2)}
+        </strong>
+
+      </div>
+    `;
+
+  }).join("");
+
+  openModal("cart", {
+    itemsHTML: itemsHTML,
+    total: total
+  });
+}
+
+function changeCartQuantity(index, change) {
+if (!cart[index]) return;
+
+  cart[index].cartQuantity += change;
+
+  if (cart[index].cartQuantity <= 0) {
+    cart.splice(index, 1);
+
+    updateCartCount();
+
+    if (cart.length === 0) {
+      closeModal();
+      showToast("Your cart is empty 🛒");
+      return;
+    }
+
+    openCart();
+    return;
+  }
+
+  updateCartCount();
+
+  const cartItem = document.querySelector(
+    `[data-cart-index="${index}"]`
+  );
+
+  if (!cartItem) {
+    openCart();
+    return;
+  }
+
+  const quantityElement =
+    cartItem.querySelector(".cart-quantity");
+
+  const totalElement =
+    cartItem.querySelector(".cart-item-total");
+
+  const quantity = cart[index].cartQuantity;
+  const price = Number(cart[index].price || 0);
+
+  quantityElement.textContent = quantity;
+
+  totalElement.textContent =
+    `₹${(price * quantity).toFixed(2)}`;
+
+  updateCartTotal();
+}
+function updateCartTotal() {
+
+  const total = cart.reduce((sum, item) => {
+
+    const quantity = item.cartQuantity || 1;
+    const price = Number(item.price || 0);
+
+    return sum + (price * quantity);
+
+  }, 0);
+
+  const totalElement =
+    document.querySelector("#cartTotal");
+
+  if (totalElement) {
+    totalElement.textContent =
+      `₹${total.toFixed(2)}`;
+  }
+}
+function removeFromCart(index) {
+
+  if (!cart[index]) return;
+
+  const productName = cart[index].name;
+
+  cart.splice(index, 1);
+
+  updateCartCount();
+
+  if (cart.length === 0) {
+    closeModal();
+    showToast("Your cart is empty 🛒");
+    return;
+  }
+
+  showToast(`${productName} removed from cart`);
+
+  openCart();
+}
+function updateCartCount() {
+
+  const count = cart.reduce(
+    (total, item) =>
+      total + (item.cartQuantity || 1),
+    0
+  );
+
+  document.getElementById("cartCount").textContent = count;
+}
+
+  function showToast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2200);
+  }
+  function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+  function openCheckout() {
+  if (cart.length === 0) {
+    showToast("Your cart is empty");
+    return;
+  }
+
+  const farmerIds = [...new Set(cart.map(item => item.farmerId))];
+
+  if (farmerIds.length > 1) {
+    showToast("Please order from one farmer at a time");
+    return;
+  }
+
+  const total = cart.reduce(
+    (sum, item) => sum + Number(item.price || 0) * (item.cartQuantity || 1),
+    0
+  );
+
+  const summaryHTML = cart.map(item => `
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid #eee;
+    ">
+      <span>
+        ${item.name} × ${item.cartQuantity || 1}
+      </span>
+      <strong>
+        ₹${(Number(item.price || 0) * (item.cartQuantity || 1)).toFixed(2)}
+      </strong>
+    </div>
+  `).join("");
+
+  const content = document.getElementById("modalContent");
+
+  content.innerHTML = `
+    <h2>🚚 Checkout</h2>
+
+    <div style="margin-top:15px;">
+      <h3>Order Summary</h3>
+      ${summaryHTML}
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-top:15px;
+        font-size:18px;
+      ">
+        <strong>Total</strong>
+        <strong>₹${total.toFixed(2)}</strong>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <label for="checkoutAddress">
+        <strong>Delivery Address</strong>
+      </label>
+
+      <textarea
+        id="checkoutAddress"
+        placeholder="Enter your complete delivery address"
+        style="
+          width:100%;
+          min-height:90px;
+          margin-top:8px;
+          padding:10px;
+          border:1px solid #ddd;
+          border-radius:8px;
+          resize:vertical;
+        "
+      ></textarea>
+    </div>
+
+    <div style="margin-top:20px;">
+      <strong>Payment Method</strong>
+
+      <div style="margin-top:10px;">
+        <label>
+          <input type="radio" name="paymentMethod" value="COD" checked>
+          Cash on Delivery
+        </label>
+      </div>
+
+      <div style="margin-top:8px; color:#888;">
+        <label>
+          <input type="radio" name="paymentMethod" value="ONLINE" disabled>
+          Online Payment — Coming soon
+        </label>
+      </div>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      style="width:100%;margin-top:20px;"
+      onclick="placeOrder()"
+    >
+      Place Order
+    </button>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+}
+async function placeOrder() {
+  if (!authToken) {
+    showToast("Please login first");
+    return;
+  }
+
+  const addressElement = document.getElementById("checkoutAddress");
+
+  if (!addressElement) {
+    showToast("Delivery address is required");
+    return;
+  }
+
+  const address = addressElement.value.trim();
+
+  if (!address) {
+    showToast("Please enter your delivery address");
+    return;
+  }
+
+  const items = cart.map(item => ({
+    productId: item.id,
+    quantity: item.cartQuantity || 1
+  }));
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        items,
+        deliveryAddress: address
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to place order");
+    }
+
+    console.log("Order created:", data);
+
+    cart = [];
+    updateCartCount();
+
+    closeModal();
+
+    showToast("Order placed successfully! 🎉");
+
+  } catch (error) {
+    console.error("Place order error:", error);
+    showToast(error.message || "Unable to place order");
+  }
+}
+  function toggleMobile(){
+    const el=document.getElementById("mobileNav");
+    el.style.display=el.style.display==="block"?"none":"block";
+  }
+  function openModal(type, data = {}){
+    const content=document.getElementById("modalContent");
+    if(type==="cart") {
+  content.innerHTML = `
+    <h2>🛒 Your Cart</h2>
+
+    <div style="margin-top:15px;">
+     ${data.itemsHTML || ""}
+    </div>
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:20px;
+      padding-top:15px;
+      border-top:1px solid var(--line);
+    ">
+      <strong>Total</strong>
+      <strong
+  id="cartTotal"
+  style="color:var(--green);font-size:20px;"
+>
+  ₹${Number(data.total || 0).toFixed(2)}
+</strong>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      style="width:100%;margin-top:18px;"
+      onclick="openCheckout()"
+    >
+      Proceed to Checkout
+    </button>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+  return;
+}
+else if(type==="account"){
+  content.innerHTML = `
+    <h2>👤 My Account</h2>
+
+    <div style="
+      margin-top:18px;
+      padding:16px;
+      background:var(--green-soft);
+      border-radius:12px;
+    ">
+      <strong>${currentUser?.name || "User"}</strong>
+      <p style="margin:6px 0;color:var(--muted);font-size:13px;">
+        ${currentUser?.email || ""}
+      </p>
+      <p style="margin:0;color:var(--muted);font-size:13px;">
+        Role: ${currentUser?.role || "Buyer"}
+      </p>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      style="width:100%;margin-top:15px;"
+      onclick="openOrderHistory()"
+    >
+      📦 My Orders
+    </button>
+
+    <button
+      class="btn btn-outline"
+      style="width:100%;margin-top:10px;"
+      onclick="logoutUser();closeModal();"
+    >
+      🚪 Logout
+    </button>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+  return;
+}
+    if(type==="role"){
+      content.innerHTML=`<h2>Welcome to FarmDirect</h2><p style="color:var(--muted)">Choose how you want to use the platform.</p>
+      <div class="role-grid">
+        <button class="role" onclick="openModal('buyer')"><div style="font-size:30px">🛒</div><h3>I'm a Buyer</h3><p>Buy fresh produce directly from verified farmers.</p></button>
+        <button class="role" onclick="openModal('farmer')"><div style="font-size:30px">🌱</div><h3>I'm a Farmer</h3><p>List produce, discover demand and sell directly.</p></button>
+      </div>`;
+    } 
+    else if(type==="aiRecommendation") {
+  content.innerHTML = `
+    <div id="aiRecommendationContent">
+      <h2>🤖 AI Market Recommendation</h2>
+      <p style="color:var(--muted)">
+        Calculating the best market for you...
+      </p>
+    </div>
+  `;
+}
+    else if(type==="addProduct"){
+  content.innerHTML=`
+    <h2>🌾 Add Produce</h2>
+    <p style="color:var(--muted)">
+      Add your available produce to FarmDirect.
+    </p>
+
+    <input id="productName"
+      placeholder="Crop / Product Name"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <input id="productCategory"
+      placeholder="Category (e.g. Vegetables)"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <input id="productQuantity"
+      type="number"
+      placeholder="Quantity"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <select id="productUnit"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+      <option value="kg">Kilograms (kg)</option>
+      <option value="quintal">Quintal</option>
+      <option value="tonne">Tonne</option>
+    </select>
+
+    <input id="productPrice"
+      type="number"
+      placeholder="Selling Price per unit"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <button class="btn btn-primary"
+      style="width:100%;margin-top:10px"
+      onclick="handleAddProduct()">
+      Add Produce
+    </button>
+  `;
+}
+
+     else if(type==="farmer"){
+  content.innerHTML=`
+    <h2>🌱 Join as a Farmer</h2>
+    <p style="color:var(--muted)">Create your FarmDirect account.</p>
+
+    <input id="registerName"
+      placeholder="Full Name"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <input id="registerEmail"
+      type="email"
+      placeholder="Email"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <input id="registerPhone"
+      placeholder="Mobile Number"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <input id="registerPassword"
+      type="password"
+      placeholder="Password"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <button class="btn btn-primary"
+      style="width:100%;margin-top:10px"
+      onclick="handleFarmerRegistration()">
+      Register as Farmer
+    </button>
+
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">
+      Already have an account?
+      <a href="#" onclick="openModal('login');return false"
+         style="color:var(--green);font-weight:700">
+         Login
+      </a>
+    </p>
+  `;
+    } else if(type==="buyer"){
+      content.innerHTML=`<h2>🛒 Buyer Login</h2><p style="color:var(--muted)">Prototype login flow.</p>
+      <input placeholder="Mobile / Email" style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+      <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="closeModal();showToast('Welcome to FarmDirect!')">Continue</button>`;
+    } else {
+  content.innerHTML=`
+    <h2>Login</h2>
+    <p style="color:var(--muted)">Login to your FarmDirect account.</p>
+
+    <input id="loginEmail"
+      type="email"
+      placeholder="Email"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <input id="loginPassword"
+      type="password"
+      placeholder="Password"
+      style="width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;margin:6px 0">
+
+    <button class="btn btn-primary"
+      style="width:100%;margin-top:10px"
+      onclick="handleLogin()">
+      Login
+    </button>
+
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center">
+      New farmer?
+      <a href="#" onclick="openModal('farmer');return false"
+         style="color:var(--green);font-weight:700">
+         Register
+      </a>
+    </p>
+  `;
+}
+        document.getElementById("modal").classList.add("show");
+  }
+  async function openOrderHistory() {
+
+  if (!authToken) {
+    showToast("Please login first");
+    return;
+  }
+
+  const content = document.getElementById("modalContent");
+
+  content.innerHTML = `
+    <h2>📦 My Orders</h2>
+    <p style="color:var(--muted);margin-top:8px;">
+      Loading your orders...
+    </p>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+
+  try {
+
+    const response = await fetch(`${API_BASE_URL}/api/orders`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${authToken}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to load orders");
+    }
+
+    const orders = data.orders || [];
+
+    if (orders.length === 0) {
+
+      content.innerHTML = `
+        <h2>📦 My Orders</h2>
+
+        <div style="
+          text-align:center;
+          padding:40px 10px;
+          color:var(--muted);
+        ">
+          <div style="font-size:45px;">🛒</div>
+          <h3 style="margin-top:10px;">No orders yet</h3>
+          <p>Your placed orders will appear here.</p>
+        </div>
+      `;
+
+      return;
+    }
+
+    const ordersHTML = orders.map(order => `
+
+      <div style="
+        border:1px solid #e5e5e5;
+        border-radius:12px;
+        padding:16px;
+        margin-top:14px;
+      ">
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+        ">
+
+          <strong>
+            Order #${String(order.id).slice(-8)}
+          </strong>
+
+          <span style="
+            padding:5px 10px;
+            border-radius:20px;
+            background:#eef7ee;
+            color:#087f35;
+            font-size:12px;
+            font-weight:600;
+          ">
+            ${order.status || "PENDING"}
+          </span>
+
+        </div>
+
+        <p style="
+          margin:10px 0 4px;
+          color:var(--muted);
+          font-size:13px;
+        ">
+          ${new Date(order.createdAt).toLocaleString()}
+        </p>
+
+        <p style="margin:8px 0;">
+          <strong>Total:</strong>
+          ₹${Number(order.totalAmount || 0).toFixed(2)}
+        </p>
+
+        <p style="
+          margin:8px 0;
+          color:var(--muted);
+          font-size:13px;
+        ">
+          📍 ${order.deliveryAddress || "Address unavailable"}
+        </p>
+
+        <button
+          class="btn btn-outline"
+          style="margin-top:8px;width:100%;"
+          onclick="viewOrderDetails('${order.id}')"
+        >
+          View Order Details
+        </button>
+
+      </div>
+
+    `).join("");
+
+    content.innerHTML = `
+      <h2>📦 My Orders</h2>
+
+      <div style="margin-top:10px;">
+        ${ordersHTML}
+      </div>
+    `;
+
+  } catch (error) {
+
+    console.error("Order history error:", error);
+
+    content.innerHTML = `
+      <h2>📦 My Orders</h2>
+
+      <div style="
+        text-align:center;
+        padding:30px 10px;
+        color:#b00020;
+      ">
+        Unable to load your orders.
+      </div>
+    `;
+  }
+}
+async function viewOrderDetails(orderId) {
+
+  if (!authToken) {
+    showToast("Please login first");
+    return;
+  }
+
+  const content = document.getElementById("modalContent");
+
+  content.innerHTML = `
+    <h2>📦 Order Details</h2>
+    <p style="color:var(--muted);">
+      Loading order details...
+    </p>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+
+  try {
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/orders/${orderId}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${authToken}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to load order");
+    }
+
+    const order = data.order;
+
+    const itemsHTML = (order.items || []).map(item => {
+
+      const quantity = Number(item.quantity || 0);
+      const price = Number(item.price || 0);
+      const subtotal = quantity * price;
+
+      return `
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          gap:12px;
+          padding:12px 0;
+          border-bottom:1px solid var(--line);
+        ">
+
+          <div>
+            <strong>
+              ${item.product?.name || "Product"}
+            </strong>
+
+            <div style="
+              color:var(--muted);
+              font-size:12px;
+              margin-top:4px;
+            ">
+              Quantity: ${quantity}
+            </div>
+          </div>
+
+          <strong>
+            ₹${subtotal.toFixed(2)}
+          </strong>
+
+        </div>
+      `;
+
+    }).join("");
+
+    content.innerHTML = `
+
+      <h2>📦 Order Details</h2>
+
+      <div style="
+        margin-top:12px;
+        padding:14px;
+        background:var(--green-soft);
+        border-radius:12px;
+      ">
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+        ">
+          <strong>
+            Order #${String(order.id).slice(-8)}
+          </strong>
+
+          <span style="
+            padding:5px 10px;
+            border-radius:20px;
+            background:#eef7ee;
+            color:#087f35;
+            font-size:12px;
+            font-weight:600;
+          ">
+            ${order.status || "PENDING"}
+          </span>
+        </div>
+
+        <p style="
+          margin:10px 0 0;
+          color:var(--muted);
+          font-size:13px;
+        ">
+          ${new Date(order.createdAt).toLocaleString()}
+        </p>
+
+      </div>
+
+      <h3 style="margin-top:20px;">
+        Items
+      </h3>
+
+      <div>
+        ${itemsHTML}
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-top:18px;
+        font-size:18px;
+      ">
+        <strong>Total</strong>
+        <strong style="color:var(--green);">
+          ₹${Number(order.totalAmount || 0).toFixed(2)}
+        </strong>
+      </div>
+
+      <div style="
+        margin-top:18px;
+        padding:14px;
+        border:1px solid var(--line);
+        border-radius:10px;
+      ">
+        <strong>📍 Delivery Address</strong>
+
+        <p style="
+          margin:7px 0 0;
+          color:var(--muted);
+          font-size:13px;
+        ">
+          ${order.deliveryAddress || "Address unavailable"}
+        </p>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        style="width:100%;margin-top:18px;"
+        onclick="showToast('Order tracking coming next 🚚')"
+      >
+        🚚 Track Order
+      </button>
+
+    `;
+
+  } catch (error) {
+
+    console.error("Order details error:", error);
+
+    content.innerHTML = `
+      <h2>📦 Order Details</h2>
+
+      <div style="
+        text-align:center;
+        padding:30px 10px;
+        color:#b00020;
+      ">
+        Unable to load order details.
+      </div>
+    `;
+  }
+}
+  
+  async function registerUser(name, email, password, phone, role) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        role,
+        phone
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Registration failed");
+    }
+
+    showToast("Registration successful! Please login.");
+    openModal("login");
+
+  } catch (error) {
+    console.error("Registration error:", error);
+    showToast(error.message);
+  }
+}
+async function handleAddProduct() {
+
+  const name = document.getElementById("productName").value.trim();
+  const category = document.getElementById("productCategory").value.trim();
+
+  const quantity = Number(
+    document.getElementById("productQuantity").value
+  );
+
+  const unit = document.getElementById("productUnit").value;
+
+  const price = Number(
+    document.getElementById("productPrice").value
+  );
+
+  if (!name || !category || !quantity || !price) {
+    showToast("Please fill all required fields");
+    return;
+  }
+
+  if (!authToken) {
+    showToast("Please login first");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(`${API_BASE_URL}/api/products`, {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${authToken}`
+      },
+
+      body: JSON.stringify({
+        name,
+        category,
+        quantity,
+        unit,
+        price
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to add produce");
+    }
+
+    console.log("Product created:", data);
+
+    closeModal();
+
+    showToast("Produce added successfully! 🌱");
+
+  } catch (error) {
+
+    console.error("Add product error:", error);
+
+    showToast(error.message);
+  }
+}
+async function getAIRecommendation() {
+
+  if (!authToken || !currentUser) {
+    showToast("Please login as a farmer first");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(`${API_BASE_URL}/api/products`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not load your products");
+    }
+
+    const farmerProducts = data.products.filter(
+      product => product.farmer?.id === currentUser.id
+    );
+
+    if (farmerProducts.length === 0) {
+      showToast("Please add some produce first");
+      return;
+    }
+
+    const product = farmerProducts[0];
+
+    let quantityKg = Number(product.quantity);
+
+    if (product.unit?.toLowerCase() === "quintal") {
+      quantityKg *= 100;
+    } else if (product.unit?.toLowerCase() === "tonne") {
+      quantityKg *= 1000;
+    }
+
+    const aiResponse = await fetch(
+      `${API_BASE_URL}/api/ai/recommend`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          crop: product.name,
+          quantity_kg: quantityKg
+        })
+      }
+    );
+
+    const aiData = await aiResponse.json();
+
+    if (!aiResponse.ok) {
+      throw new Error(
+        aiData.message || "AI recommendation failed"
+      );
+    }
+
+    const recommendations =
+      aiData.data?.recommendations || [];
+
+    if (recommendations.length === 0) {
+      showToast("No market recommendation available");
+      return;
+    }
+
+    const best = recommendations[0];
+    document.getElementById("recommendedMarket").textContent =
+  `${best.market_name}, ${best.state}`;
+
+document.getElementById("predictedMarketPrice").textContent =
+  `₹${(Number(best.predicted_price_per_quintal) / 100).toFixed(2)}/kg`;
+
+document.getElementById("expectedNetRealization").textContent =
+  `₹${Number(best.net_price_per_kg).toFixed(2)}/kg`;
+
+    openModal("aiRecommendation");
+
+    document.getElementById(
+      "aiRecommendationContent"
+    ).innerHTML = `
+
+      <h2>🤖 AI Market Recommendation</h2>
+
+      <p style="color:var(--muted)">
+        Based on your
+        <strong>${product.quantity} ${product.unit}</strong>
+        of <strong>${product.name}</strong>.
+      </p>
+
+      <div class="card" style="padding:18px;margin-top:15px">
+
+        <span class="tag">✓ AI Recommended Market</span>
+
+        <h3 style="margin:12px 0 5px">
+          ${best.market_name}
+        </h3>
+
+        <p style="color:var(--muted);font-size:13px">
+          ${best.district}, ${best.state}
+        </p>
+
+        <div class="row">
+          <span>Predicted price</span>
+          <strong>
+            ₹${Number(best.predicted_price_per_quintal).toFixed(2)}/quintal
+          </strong>
+        </div>
+
+        <div class="row">
+          <span>Distance</span>
+          <strong>${best.distance_km} km</strong>
+        </div>
+
+        <div class="row">
+          <span>Expected net realization</span>
+          <strong style="color:var(--green)">
+            ₹${Number(best.net_price_per_kg).toFixed(2)}/kg
+          </strong>
+        </div>
+
+        <div class="row">
+          <span>Total expected realization</span>
+          <strong>
+            ₹${Number(best.total_net_realization).toFixed(2)}
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="insight">
+        💡 This is an AI-based estimate, not a guaranteed market price.
+      </div>
+    `;
+
+  } catch (error) {
+
+    console.error("AI recommendation error:", error);
+    showToast(error.message);
+
+  }
+}
+
+
+
+async function loginUser(email, password) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Login failed");
+    }
+
+    authToken = data.token;
+    currentUser = data.user;
+    updateNavbarAuth();
+    localStorage.setItem("authToken", authToken);
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify(currentUser)
+    );
+
+    closeModal();
+
+    showToast(`Welcome, ${currentUser.name}!`);
+
+    console.log("Logged in user:", currentUser);
+
+  } catch (error) {
+    console.error("Login error:", error);
+    showToast(error.message);
+  }
+}
+function updateNavbarAuth() {
+  const accountButton = document.getElementById("accountButton");
+
+  if (!accountButton) return;
+
+  if (authToken && currentUser) {
+    accountButton.textContent = `👤 ${currentUser.name}`;
+    accountButton.onclick = handleAccountClick;
+  } else {
+    accountButton.textContent = "Login";
+    accountButton.onclick = () => openModal("login");
+  }
+}
+
+function handleAccountClick() {
+  if (!authToken || !currentUser) {
+    openModal("login");
+    return;
+  }
+
+  openModal("account");
+}
+
+function logoutUser() {
+  authToken = null;
+  currentUser = null;
+
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("currentUser");
+
+  updateNavbarAuth();
+
+  showToast("Logged out successfully 👋");
+}
+
+
+async function handleLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if (!email || !password) {
+    showToast("Email and password are required");
+    return;
+  }
+
+  await loginUser(email, password);
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.remove("show")
+}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+updateNavbarAuth();
+loadProducts();
+loadFarmerOrders();
+</script>
+</body>
+</html>

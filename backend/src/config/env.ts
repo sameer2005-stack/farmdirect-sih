@@ -8,4 +8,7 @@ const JWT_SECRET: string =
     throw new Error("JWT_SECRET is not defined");
   })();
 
-export { PORT, JWT_SECRET };
+const MANDISAARTHI_URL =
+  process.env.MANDISAARTHI_URL || "http://127.0.0.1:8000";
+
+export { PORT, JWT_SECRET, MANDISAARTHI_URL };
